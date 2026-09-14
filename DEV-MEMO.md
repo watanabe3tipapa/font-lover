@@ -101,8 +101,8 @@ pnpm dev                                  # collector:8787 / zine:3000
 
 - **完全モード（Browser Run）は無料枠では使えない**。スキャンは light モード（HTMLパース）で運用。full スキャンは動的 import にしているが `MYBROWSER` バインディングなしのため実行不可（有料枠にする際は `[browser]` バインディングを wrangler.toml へ追加）
 - **light スキャンのノイズ**: CSS変数(`var(--…)`)/`inherit`/`sans-serif` なども取得する。ニーズに応じフィルタ追加が望ましい
-- **`tooling/mdn-sync`** は `pnpm --filter @font-lover/zine mdn:sync`（node 25 推奨）で実行可能。font_mdn_refs への保存済み（ローカル SQLite）。D1 への反映は `wrangler d1 export/import` で対応
-- **`tooling/cron-trigger`** は CLI 実行可能な状態。Cron Trigger 設定は未実施
+- **`tooling/mdn-sync`** は `pnpm --filter @font-lover/zine mdn:sync`（node 25 推奨）で実行可能。font_mdn_refs への保存済み（ローカル SQLite）。**D1 にも反映済み**（production 6ファミリー × 8スラグ = 48件、`wrangler d1 execute --file` で投入）
+- **`tooling/cron-trigger`** は CLI 実行可能な状態。`collect-batch.ts light|full [tech|government|all]` で対象切替（government = 中央省庁・機関39サイト）。Cron Trigger 設定は未実施
 - **eslint-config**（`packages/eslint-config`）は現状 zine から未参照。参照する場合は prettier/型スクリプト系プラグインの導入が必要
 
 ## デプロイ（2026-09-14 実施）
