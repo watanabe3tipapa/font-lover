@@ -1,0 +1,61 @@
+{
+  "id": "fonts/inter",
+  "type": "FontFamily",
+  "url": "inter.md",
+  "title": "Inter",
+  "meta": {
+    "type": "FontFamily",
+    "title": "Inter",
+    "description": "sans-serif カテゴリのフォント。1 サイトで検出(google-fonts由来)。",
+    "resource": "https://fonts.google.com/specimen/Inter",
+    "tags": [
+      "sans-serif",
+      "google-fonts"
+    ],
+    "status": "stable",
+    "generated": {
+      "by": "process:font-lover-collector/0.1.0",
+      "at": "2026-09-14T05:57:11.996Z"
+    },
+    "verified": {
+      "by": "process:font-lover-collector/0.1.0",
+      "at": "2026-09-14T05:57:11.996Z"
+    },
+    "stale_after": "2026-12-13T05:57:11.996Z",
+    "sources": [
+      {
+        "id": "sight:stripe.com",
+        "resource": "https://stripe.com",
+        "title": "Stripe — Payment infrastructure",
+        "usage_count": 1,
+        "last_modified": "2026-09-14T05:57:11.996Z"
+      }
+    ]
+  },
+  "sections": [
+    {
+      "heading": "Summary",
+      "level": 1,
+      "blocks": [
+        "sans-serif カテゴリのフォント。1 サイトで検出(google-fonts由来)。",
+        "カテゴリ: sans-serif / 由来: google-fonts / 人気スコア: 25"
+      ]
+    },
+    {
+      "heading": "Sightings",
+      "level": 1,
+      "blocks": [
+        "- stripe.com — Stripe — Payment infrastructure (用途回数: 1, mode: light, 検出: 2026-09-14T05:57:11.996Z)"
+      ]
+    },
+    {
+      "heading": "Faces",
+      "level": 1,
+      "blocks": [
+        "- (記録なし)"
+      ]
+    }
+  ],
+  "learnedAt": "2026-09-14T05:57:11.996Z",
+  "hash": "1412be9ed44ac8a4"
+}

@@ -1,0 +1,23 @@
+{
+  "name": "@font-lover/collector",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "build": "tsc",
+    "lint": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@cloudflare/puppeteer": "^0.0.14",
+    "@font-lover/database": "workspace:*",
+    "@font-lover/shared-types": "workspace:*",
+    "drizzle-orm": "^0.30.0",
+    "hono": "^4.0.0"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20240601.0",
+    "typescript": "^5.4.0",
+    "wrangler": "^3.0.0"
+  }
+}

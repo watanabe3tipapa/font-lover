@@ -1,0 +1,61 @@
+{
+  "id": "fonts/merriweather",
+  "type": "FontFamily",
+  "url": "merriweather.md",
+  "title": "Merriweather",
+  "meta": {
+    "type": "FontFamily",
+    "title": "Merriweather",
+    "description": "serif カテゴリのフォント。1 サイトで検出(google-fonts由来)。",
+    "resource": "https://fonts.google.com/specimen/Merriweather",
+    "tags": [
+      "serif",
+      "google-fonts"
+    ],
+    "status": "stable",
+    "generated": {
+      "by": "process:font-lover-collector/0.1.0",
+      "at": "2026-09-14T05:57:11.996Z"
+    },
+    "verified": {
+      "by": "process:font-lover-collector/0.1.0",
+      "at": "2026-09-14T05:57:11.996Z"
+    },
+    "stale_after": "2026-12-13T05:57:11.996Z",
+    "sources": [
+      {
+        "id": "sight:tailwindcss.com",
+        "resource": "https://tailwindcss.com",
+        "title": "Tailwind CSS",
+        "usage_count": 5,
+        "last_modified": "2026-09-14T05:57:11.996Z"
+      }
+    ]
+  },
+  "sections": [
+    {
+      "heading": "Summary",
+      "level": 1,
+      "blocks": [
+        "serif カテゴリのフォント。1 サイトで検出(google-fonts由来)。",
+        "カテゴリ: serif / 由来: google-fonts / 人気スコア: 9"
+      ]
+    },
+    {
+      "heading": "Sightings",
+      "level": 1,
+      "blocks": [
+        "- tailwindcss.com — Tailwind CSS (用途回数: 5, mode: light, 検出: 2026-09-14T05:57:11.996Z)"
+      ]
+    },
+    {
+      "heading": "Faces",
+      "level": 1,
+      "blocks": [
+        "- (記録なし)"
+      ]
+    }
+  ],
+  "learnedAt": "2026-09-14T05:57:11.996Z",
+  "hash": "e16cee1d99da9c9b"
+}

@@ -1,0 +1,61 @@
+{
+  "id": "fonts/jetbrains-mono",
+  "type": "FontFamily",
+  "url": "jetbrains-mono.md",
+  "title": "JetBrains Mono",
+  "meta": {
+    "type": "FontFamily",
+    "title": "JetBrains Mono",
+    "description": "monospace カテゴリのフォント。1 サイトで検出(google-fonts由来)。",
+    "resource": "https://fonts.google.com/specimen/JetBrains%20Mono",
+    "tags": [
+      "monospace",
+      "google-fonts"
+    ],
+    "status": "stable",
+    "generated": {
+      "by": "process:font-lover-collector/0.1.0",
+      "at": "2026-09-14T05:57:11.996Z"
+    },
+    "verified": {
+      "by": "process:font-lover-collector/0.1.0",
+      "at": "2026-09-14T05:57:11.996Z"
+    },
+    "stale_after": "2026-12-13T05:57:11.996Z",
+    "sources": [
+      {
+        "id": "sight:vercel.com",
+        "resource": "https://vercel.com",
+        "title": "Vercel — Develop. Preview. Ship.",
+        "usage_count": 3,
+        "last_modified": "2026-09-14T05:57:11.996Z"
+      }
+    ]
+  },
+  "sections": [
+    {
+      "heading": "Summary",
+      "level": 1,
+      "blocks": [
+        "monospace カテゴリのフォント。1 サイトで検出(google-fonts由来)。",
+        "カテゴリ: monospace / 由来: google-fonts / 人気スコア: 18"
+      ]
+    },
+    {
+      "heading": "Sightings",
+      "level": 1,
+      "blocks": [
+        "- vercel.com — Vercel — Develop. Preview. Ship. (用途回数: 3, mode: light, 検出: 2026-09-14T05:57:11.996Z)"
+      ]
+    },
+    {
+      "heading": "Faces",
+      "level": 1,
+      "blocks": [
+        "- (記録なし)"
+      ]
+    }
+  ],
+  "learnedAt": "2026-09-14T05:57:11.996Z",
+  "hash": "3740db07b206c937"
+}

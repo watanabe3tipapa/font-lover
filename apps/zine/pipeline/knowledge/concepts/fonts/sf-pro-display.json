@@ -1,0 +1,60 @@
+{
+  "id": "fonts/sf-pro-display",
+  "type": "FontFamily",
+  "url": "sf-pro-display.md",
+  "title": "SF Pro Display",
+  "meta": {
+    "type": "FontFamily",
+    "title": "SF Pro Display",
+    "description": "sans-serif カテゴリのフォント。1 サイトで検出(system由来)。",
+    "tags": [
+      "sans-serif",
+      "system"
+    ],
+    "status": "stable",
+    "generated": {
+      "by": "process:font-lover-collector/0.1.0",
+      "at": "2026-09-14T05:57:11.996Z"
+    },
+    "verified": {
+      "by": "process:font-lover-collector/0.1.0",
+      "at": "2026-09-14T05:57:11.996Z"
+    },
+    "stale_after": "2026-12-13T05:57:11.996Z",
+    "sources": [
+      {
+        "id": "sight:stripe.com",
+        "resource": "https://stripe.com",
+        "title": "Stripe — Payment infrastructure",
+        "usage_count": 1,
+        "last_modified": "2026-09-14T05:57:11.996Z"
+      }
+    ]
+  },
+  "sections": [
+    {
+      "heading": "Summary",
+      "level": 1,
+      "blocks": [
+        "sans-serif カテゴリのフォント。1 サイトで検出(system由来)。",
+        "カテゴリ: sans-serif / 由来: system / 人気スコア: 12"
+      ]
+    },
+    {
+      "heading": "Sightings",
+      "level": 1,
+      "blocks": [
+        "- stripe.com — Stripe — Payment infrastructure (用途回数: 1, mode: light, 検出: 2026-09-14T05:57:11.996Z)"
+      ]
+    },
+    {
+      "heading": "Faces",
+      "level": 1,
+      "blocks": [
+        "- (記録なし)"
+      ]
+    }
+  ],
+  "learnedAt": "2026-09-14T05:57:11.996Z",
+  "hash": "a5f9cd113fe292d1"
+}

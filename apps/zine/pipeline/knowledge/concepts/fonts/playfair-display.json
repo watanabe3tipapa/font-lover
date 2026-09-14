@@ -1,0 +1,61 @@
+{
+  "id": "fonts/playfair-display",
+  "type": "FontFamily",
+  "url": "playfair-display.md",
+  "title": "Playfair Display",
+  "meta": {
+    "type": "FontFamily",
+    "title": "Playfair Display",
+    "description": "serif カテゴリのフォント。1 サイトで検出(google-fonts由来)。",
+    "resource": "https://fonts.google.com/specimen/Playfair%20Display",
+    "tags": [
+      "serif",
+      "google-fonts"
+    ],
+    "status": "stable",
+    "generated": {
+      "by": "process:font-lover-collector/0.1.0",
+      "at": "2026-09-14T05:57:11.996Z"
+    },
+    "verified": {
+      "by": "process:font-lover-collector/0.1.0",
+      "at": "2026-09-14T05:57:11.996Z"
+    },
+    "stale_after": "2026-12-13T05:57:11.996Z",
+    "sources": [
+      {
+        "id": "sight:github.com",
+        "resource": "https://github.com",
+        "title": "GitHub",
+        "usage_count": 4,
+        "last_modified": "2026-09-14T05:57:11.996Z"
+      }
+    ]
+  },
+  "sections": [
+    {
+      "heading": "Summary",
+      "level": 1,
+      "blocks": [
+        "serif カテゴリのフォント。1 サイトで検出(google-fonts由来)。",
+        "カテゴリ: serif / 由来: google-fonts / 人気スコア: 14"
+      ]
+    },
+    {
+      "heading": "Sightings",
+      "level": 1,
+      "blocks": [
+        "- github.com — GitHub (用途回数: 4, mode: light, 検出: 2026-09-14T05:57:11.996Z)"
+      ]
+    },
+    {
+      "heading": "Faces",
+      "level": 1,
+      "blocks": [
+        "- (記録なし)"
+      ]
+    }
+  ],
+  "learnedAt": "2026-09-14T05:57:11.996Z",
+  "hash": "f5f4ff7ed6305d73"
+}

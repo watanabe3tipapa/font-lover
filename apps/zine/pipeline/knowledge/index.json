@@ -1,0 +1,51 @@
+{
+  "generatedAt": "2026-09-14T06:30:24.195Z",
+  "total": 7,
+  "byStatus": {
+    "unchanged": 7
+  },
+  "concepts": [
+    {
+      "id": "fonts/inter",
+      "type": "FontFamily",
+      "status": "unchanged",
+      "sections": 3
+    },
+    {
+      "id": "fonts/noto-sans-jp",
+      "type": "FontFamily",
+      "status": "unchanged",
+      "sections": 3
+    },
+    {
+      "id": "fonts/jetbrains-mono",
+      "type": "FontFamily",
+      "status": "unchanged",
+      "sections": 3
+    },
+    {
+      "id": "fonts/playfair-display",
+      "type": "FontFamily",
+      "status": "unchanged",
+      "sections": 3
+    },
+    {
+      "id": "fonts/merriweather",
+      "type": "FontFamily",
+      "status": "unchanged",
+      "sections": 3
+    },
+    {
+      "id": "fonts/sf-pro-display",
+      "type": "FontFamily",
+      "status": "unchanged",
+      "sections": 3
+    },
+    {
+      "id": "fonts/ibm-plex-sans",
+      "type": "FontFamily",
+      "status": "unchanged",
+      "sections": 3
+    }
+  ]
+}

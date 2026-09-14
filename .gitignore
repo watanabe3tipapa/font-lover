@@ -1,0 +1,32 @@
+# dependencies
+node_modules/
+.pnp/
+.pnp.js
+
+# builds
+.next/
+out/
+dist/
+*.tsbuildinfo
+
+# env
+.env.local
+.env*.local
+apps/collector/.dev.vars
+*.db
+
+# cloudflare / wrangler
+.wrangler/
+wrangler.toml.bak
+
+# misc
+.DS_Store
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# turbo cache
+.turbo/
+
+# vercel
+.vercel/

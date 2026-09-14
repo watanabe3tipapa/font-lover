@@ -1,0 +1,13 @@
+name = "font-lover-collector"
+main = "src/index.ts"
+compatibility_date = "2026-01-01"
+
+[browser]
+binding = "MYBROWSER"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "font-lover-db"
+database_id = "xxxxx"
+
+# ローカル開発用: .dev.vars に WORKER_TOKEN=xxx を記述

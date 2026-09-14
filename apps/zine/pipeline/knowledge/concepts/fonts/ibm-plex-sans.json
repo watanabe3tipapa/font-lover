@@ -1,0 +1,61 @@
+{
+  "id": "fonts/ibm-plex-sans",
+  "type": "FontFamily",
+  "url": "ibm-plex-sans.md",
+  "title": "IBM Plex Sans",
+  "meta": {
+    "type": "FontFamily",
+    "title": "IBM Plex Sans",
+    "description": "sans-serif カテゴリのフォント。1 サイトで検出(google-fonts由来)。",
+    "resource": "https://fonts.google.com/specimen/IBM%20Plex%20Sans",
+    "tags": [
+      "sans-serif",
+      "google-fonts"
+    ],
+    "status": "stable",
+    "generated": {
+      "by": "process:font-lover-collector/0.1.0",
+      "at": "2026-09-14T05:57:11.996Z"
+    },
+    "verified": {
+      "by": "process:font-lover-collector/0.1.0",
+      "at": "2026-09-14T05:57:11.996Z"
+    },
+    "stale_after": "2026-12-13T05:57:11.996Z",
+    "sources": [
+      {
+        "id": "sight:linear.app",
+        "resource": "https://linear.app",
+        "title": "Linear — Plan and build",
+        "usage_count": 2,
+        "last_modified": "2026-09-14T05:57:11.996Z"
+      }
+    ]
+  },
+  "sections": [
+    {
+      "heading": "Summary",
+      "level": 1,
+      "blocks": [
+        "sans-serif カテゴリのフォント。1 サイトで検出(google-fonts由来)。",
+        "カテゴリ: sans-serif / 由来: google-fonts / 人気スコア: 7"
+      ]
+    },
+    {
+      "heading": "Sightings",
+      "level": 1,
+      "blocks": [
+        "- linear.app — Linear — Plan and build (用途回数: 2, mode: light, 検出: 2026-09-14T05:57:11.996Z)"
+      ]
+    },
+    {
+      "heading": "Faces",
+      "level": 1,
+      "blocks": [
+        "- (記録なし)"
+      ]
+    }
+  ],
+  "learnedAt": "2026-09-14T05:57:11.996Z",
+  "hash": "9d0bbad8a8a9193d"
+}
