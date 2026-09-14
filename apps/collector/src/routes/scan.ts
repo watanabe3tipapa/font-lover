@@ -1,6 +1,5 @@
 import { Hono } from "hono";
 import { lightScan } from "../services/light-scan";
-import { fullScan } from "../services/full-scan";
 import { storeScanResult } from "../services/store";
 import type { Env } from "../types";
 import type { ScanRequest, ScanResponse, ScanError } from "@font-lover/shared-types";
@@ -22,8 +21,9 @@ app.post("/", async (c) => {
   }
 
   try {
+    // puppeteer は起動コストが大きいため、full スキャン時のみ動的 import する
     const result = mode === "full"
-      ? await fullScan(url, c.env.MYBROWSER)
+      ? await (await import("../services/full-scan")).fullScan(url, c.env.MYBROWSER)
       : await lightScan(url);
 
     // DBに保存

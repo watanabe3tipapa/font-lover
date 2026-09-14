@@ -58,6 +58,41 @@ export function loadPreviousHashes(dir) {
   return out;
 }
 
+// コミット済みの pipeline/knowledge/ (index.json + concepts/*.json) をそのまま読む。
+// Vercel などの本番(リモートプロキシモード)では SQLite に触れないため、
+// この成果物 JSON を /api/okf や OKFビューワーの表示元にする。
+export function loadOkfBundleFromDisk(dir) {
+  const base = dir ?? join(process.cwd(), "pipeline", "knowledge");
+  const indexPath = join(base, "index.json");
+  const conceptsDir = join(base, "concepts");
+  if (!existsSync(indexPath) || !existsSync(conceptsDir)) return null;
+
+  let index;
+  try {
+    index = JSON.parse(readFileSync(indexPath, "utf8"));
+  } catch {
+    return null;
+  }
+
+  const byId = new Map();
+  for (const f of readdirSync(conceptsDir, { recursive: true })) {
+    if (!String(f).endsWith(".json")) continue;
+    try {
+      const c = JSON.parse(readFileSync(join(conceptsDir, f), "utf8"));
+      if (c && c.id) byId.set(c.id, c);
+    } catch {
+      // 壊れた概念ファイルはスキップ
+    }
+  }
+
+  // index.json の order (id 一覧) に合わせて concepts を並べ直す
+  const concepts = (index.concepts ?? [])
+    .map((e) => byId.get(e.id))
+    .filter(Boolean);
+
+  return { index, concepts };
+}
+
 function queryAll(sqlite, sql, params = []) {
   return sqlite.prepare(sql).all(...params);
 }

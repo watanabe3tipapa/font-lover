@@ -58,3 +58,5 @@ export function buildOkfKnowledge(
 ): OkfBundle;
 
 export function loadPreviousHashes(dir?: string): Record<string, string>;
+
+export function loadOkfBundleFromDisk(dir?: string): OkfBundle | null;

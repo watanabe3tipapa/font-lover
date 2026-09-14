@@ -1,4 +1,5 @@
-import { db } from "@/lib/db";
+import { getDb } from "@/lib/db";
+import { REMOTE } from "@/lib/config";
 import { fontFamilies, fontFaces, fontSightings, fontMdnRefs } from "@font-lover/database";
 
 export const dynamic = "force-dynamic";
@@ -8,13 +9,41 @@ export const metadata = {
 };
 
 const tables = [
-  { name: "font_families", query: () => db.select().from(fontFamilies) },
-  { name: "font_faces", query: () => db.select().from(fontFaces) },
-  { name: "font_sightings", query: () => db.select().from(fontSightings) },
-  { name: "font_mdn_refs", query: () => db.select().from(fontMdnRefs) },
+  { name: "font_families", query: () => getDb().select().from(fontFamilies) },
+  { name: "font_faces", query: () => getDb().select().from(fontFaces) },
+  { name: "font_sightings", query: () => getDb().select().from(fontSightings) },
+  { name: "font_mdn_refs", query: () => getDb().select().from(fontMdnRefs) },
 ] as const;
 
 export default async function InspectorPage() {
+  if (REMOTE) {
+    return (
+      <div>
+        <a href="/" style={{ color: "#1e3a8a", textDecoration: "none", fontSize: "0.9rem" }}>
+          ← 図鑑トップへ
+        </a>
+        <h2 style={{ fontSize: "1.8rem", marginTop: "1rem", color: "#1e3a8a" }}>DBインスペクタ</h2>
+        <p style={{ color: "#475569", fontSize: "0.9rem" }}>
+          リモートモード（collector / D1 プロキシ）ではローカルSQLiteは直接表示しません。
+        </p>
+        <ul>
+          <li>
+            <a href="/api/fonts" style={{ color: "#1e3a8a" }}>/api/fonts</a> — フォント一覧
+          </li>
+          <li>
+            <a href="/api/stats" style={{ color: "#1e3a8a" }}>/api/stats</a> — 統計
+          </li>
+          <li>
+            <a href="/api/okf" style={{ color: "#1e3a8a" }}>/api/okf</a> — OKF知識バンドル（コミット済みJSON）
+          </li>
+          <li>
+            <a href="/okf" style={{ color: "#1e3a8a" }}>/okf</a> — OKFビューワー
+          </li>
+        </ul>
+      </div>
+    );
+  }
+
   const rows: Record<string, unknown[]> = {};
   const errors: Record<string, string> = {};
 

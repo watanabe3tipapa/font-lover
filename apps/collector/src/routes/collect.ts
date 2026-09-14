@@ -1,6 +1,5 @@
 import { Hono } from "hono";
 import { lightScan } from "../services/light-scan";
-import { fullScan } from "../services/full-scan";
 import { storeScanResult } from "../services/store";
 import type { Env } from "../types";
 import type { CollectRequest, CollectResponse, ScanResponse, ScanError } from "@font-lover/shared-types";
@@ -29,7 +28,7 @@ app.post("/", async (c) => {
       }
 
       const result = mode === "full"
-        ? await fullScan(url, c.env.MYBROWSER)
+        ? await (await import("../services/full-scan")).fullScan(url, c.env.MYBROWSER)
         : await lightScan(url);
 
       await storeScanResult(

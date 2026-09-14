@@ -1,0 +1,13 @@
+name = "font-lover-collector"
+main = "src/index.ts"
+compatibility_date = "2026-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "font-lover-db"
+database_id = "xxxxx"
+
+# ローカル開発専用設定: Browser Rendering はローカルで使えないため除外。
+# 本番運用は wrangler.toml（[browser] バインディングあり）を使う。
+# ローカル起動: `wrangler dev --config wrangler.dev.toml`

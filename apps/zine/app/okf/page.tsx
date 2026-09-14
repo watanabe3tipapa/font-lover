@@ -1,13 +1,30 @@
-import { sqlite } from "@/lib/db";
-import { buildOkfKnowledge, loadPreviousHashes } from "@/lib/okf-builder.mjs";
+import { REMOTE } from "@/lib/config";
+import { getSqlite } from "@/lib/db";
+import { buildOkfKnowledge, loadOkfBundleFromDisk, loadPreviousHashes } from "@/lib/okf-builder.mjs";
 import type { OkfBundle } from "@/lib/okf-builder.mjs";
 
 export const dynamic = "force-dynamic";
 
 export default async function OkfPage() {
-  const bundle: OkfBundle = buildOkfKnowledge(sqlite, {
-    previousHashes: loadPreviousHashes(),
-  });
+  let bundle: OkfBundle;
+  if (REMOTE) {
+    bundle =
+      loadOkfBundleFromDisk() ?? {
+        index: { generatedAt: "", total: 0, byStatus: {}, concepts: [] },
+        concepts: [],
+      };
+  } else {
+    try {
+      bundle = buildOkfKnowledge(getSqlite(), {
+        previousHashes: loadPreviousHashes(),
+      });
+    } catch {
+      bundle = loadOkfBundleFromDisk() ?? {
+        index: { generatedAt: "", total: 0, byStatus: {}, concepts: [] },
+        concepts: [],
+      };
+    }
+  }
   const { index, concepts } = bundle;
 
   const statusColors: Record<string, string> = {
