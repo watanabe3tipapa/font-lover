@@ -39,12 +39,17 @@ export async function listFonts() {
     const data = await proxySafe<{ fonts: LocalFont[] }>("/api/fonts", { fonts: [] });
     return data.fonts;
   }
-  const fonts = await getDb()
-    .select()
-    .from(fontFamilies)
-    .orderBy(desc(fontFamilies.popularityScore))
-    .limit(100);
-  return fonts;
+  try {
+    const fonts = await getDb()
+      .select()
+      .from(fontFamilies)
+      .orderBy(desc(fontFamilies.popularityScore))
+      .limit(100);
+    return fonts;
+  } catch (err) {
+    console.warn("[data] local DB unavailable for listFonts:", err instanceof Error ? err.message : err);
+    return [];
+  }
 }
 
 export async function getFontDetail(family: string) {
@@ -55,27 +60,32 @@ export async function getFontDetail(family: string) {
       return { font: null, sightings: [] };
     }
   }
-  const rows = await getDb()
-    .select()
-    .from(fontFamilies)
-    .where(eq(fontFamilies.familyName, family))
-    .limit(1);
-  if (rows.length === 0) return { font: null, sightings: [] };
+  try {
+    const rows = await getDb()
+      .select()
+      .from(fontFamilies)
+      .where(eq(fontFamilies.familyName, family))
+      .limit(1);
+    if (rows.length === 0) return { font: null, sightings: [] };
 
-  const sightings = await getDb()
-    .select({
-      siteDomain: fontSightings.siteDomain,
-      siteUrl: fontSightings.siteUrl,
-      detectedAt: fontSightings.detectedAt,
-      usageCount: fontSightings.usageCount,
-      mode: fontSightings.mode,
-    })
-    .from(fontSightings)
-    .where(eq(fontSightings.familyId, rows[0].id))
-    .orderBy(desc(fontSightings.detectedAt))
-    .limit(100);
+    const sightings = await getDb()
+      .select({
+        siteDomain: fontSightings.siteDomain,
+        siteUrl: fontSightings.siteUrl,
+        detectedAt: fontSightings.detectedAt,
+        usageCount: fontSightings.usageCount,
+        mode: fontSightings.mode,
+      })
+      .from(fontSightings)
+      .where(eq(fontSightings.familyId, rows[0].id))
+      .orderBy(desc(fontSightings.detectedAt))
+      .limit(100);
 
-  return { font: rows[0], sightings };
+    return { font: rows[0], sightings };
+  } catch (err) {
+    console.warn("[data] local DB unavailable for getFontDetail:", err instanceof Error ? err.message : err);
+    return { font: null, sightings: [] };
+  }
 }
 
 export async function getSiteFonts(domain: string) {
@@ -86,20 +96,25 @@ export async function getSiteFonts(domain: string) {
     );
     return data.fonts;
   }
-  const fonts = await getDb()
-    .select({
-      familyName: fontFamilies.familyName,
-      category: fontFamilies.category,
-      sourceType: fontFamilies.sourceType,
-      detectedAt: fontSightings.detectedAt,
-      usageCount: fontSightings.usageCount,
-    })
-    .from(fontSightings)
-    .innerJoin(fontFamilies, eq(fontSightings.familyId, fontFamilies.id))
-    .where(eq(fontSightings.siteDomain, domain))
-    .orderBy(desc(fontSightings.detectedAt))
-    .limit(200);
-  return fonts;
+  try {
+    const fonts = await getDb()
+      .select({
+        familyName: fontFamilies.familyName,
+        category: fontFamilies.category,
+        sourceType: fontFamilies.sourceType,
+        detectedAt: fontSightings.detectedAt,
+        usageCount: fontSightings.usageCount,
+      })
+      .from(fontSightings)
+      .innerJoin(fontFamilies, eq(fontSightings.familyId, fontFamilies.id))
+      .where(eq(fontSightings.siteDomain, domain))
+      .orderBy(desc(fontSightings.detectedAt))
+      .limit(200);
+    return fonts;
+  } catch (err) {
+    console.warn("[data] local DB unavailable for getSiteFonts:", err instanceof Error ? err.message : err);
+    return [];
+  }
 }
 
 export async function getStats() {
@@ -112,37 +127,48 @@ export async function getStats() {
       topFonts: [],
     });
   }
-  const [totalFonts] = await getDb().select({ value: count() }).from(fontFamilies);
-  const [totalSightings] = await getDb().select({ value: count() }).from(fontSightings);
+  try {
+    const [totalFonts] = await getDb().select({ value: count() }).from(fontFamilies);
+    const [totalSightings] = await getDb().select({ value: count() }).from(fontSightings);
 
-  const categoryDistribution = await getDb()
-    .select({ category: fontFamilies.category, count: count() })
-    .from(fontFamilies)
-    .groupBy(fontFamilies.category)
-    .orderBy(desc(count()));
+    const categoryDistribution = await getDb()
+      .select({ category: fontFamilies.category, count: count() })
+      .from(fontFamilies)
+      .groupBy(fontFamilies.category)
+      .orderBy(desc(count()));
 
-  const sourceDistribution = await getDb()
-    .select({ sourceType: fontFamilies.sourceType, count: count() })
-    .from(fontFamilies)
-    .groupBy(fontFamilies.sourceType)
-    .orderBy(desc(count()));
+    const sourceDistribution = await getDb()
+      .select({ sourceType: fontFamilies.sourceType, count: count() })
+      .from(fontFamilies)
+      .groupBy(fontFamilies.sourceType)
+      .orderBy(desc(count()));
 
-  const topFonts = await getDb()
-    .select({
-      familyName: fontFamilies.familyName,
-      popularityScore: fontFamilies.popularityScore,
-    })
-    .from(fontFamilies)
-    .orderBy(desc(fontFamilies.popularityScore))
-    .limit(10);
+    const topFonts = await getDb()
+      .select({
+        familyName: fontFamilies.familyName,
+        popularityScore: fontFamilies.popularityScore,
+      })
+      .from(fontFamilies)
+      .orderBy(desc(fontFamilies.popularityScore))
+      .limit(10);
 
-  return {
-    totalFonts: totalFonts?.value ?? 0,
-    totalSightings: totalSightings?.value ?? 0,
-    categoryDistribution,
-    sourceDistribution,
-    topFonts,
-  };
+    return {
+      totalFonts: totalFonts?.value ?? 0,
+      totalSightings: totalSightings?.value ?? 0,
+      categoryDistribution,
+      sourceDistribution,
+      topFonts,
+    };
+  } catch (err) {
+    console.warn("[data] local DB unavailable for getStats:", err instanceof Error ? err.message : err);
+    return {
+      totalFonts: 0,
+      totalSightings: 0,
+      categoryDistribution: [],
+      sourceDistribution: [],
+      topFonts: [],
+    };
+  }
 }
 
 // ---- 型定義（zine 側で使うデータ形状） ----
