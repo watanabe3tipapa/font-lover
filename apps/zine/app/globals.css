@@ -180,6 +180,8 @@ strong { font-weight: 800; }
 
 .card:hover { transform: translate(2px, 2px); box-shadow: 4px 4px 0 0 var(--ink); }
 
+a.card:hover { color: var(--ink); text-decoration: none; }
+
 /* Font grid on home */
 .font-grid {
   display: grid;

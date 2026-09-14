@@ -41,22 +41,42 @@ export default function HomePage() {
         <span className="pill pill-yellow">2026-09-14</span>
       </div>
       <div className="font-grid" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))" }}>
-        <div className="card">
-          <h3>Noto Sans JP</h3>
-          <p>デジタル庁 / 総務省で標準採用。公的サイトの定番を実測で確認。</p>
-        </div>
-        <div className="card card-yellow">
-          <h3>Noto Serif JP</h3>
-          <p>首相官邸の見出しで使用。フォーマルな文書表現の実例。</p>
-        </div>
-        <div className="card card-blue">
-          <h3>BIZ UDPGothic</h3>
-          <p>文化庁で検出。国産ユニバーサルデザイン書体の行政採用例。</p>
-        </div>
-        <div className="card card-lime">
-          <h3>M PLUS Rounded 1c</h3>
-          <p>こども家庭庁で検出。丸ゴシックの親しみやすいトーンを選択。</p>
-        </div>
+        {[
+          {
+            name: "Noto Sans JP",
+            dbName: "Noto Sans JP:wght@100..900",
+            color: "",
+            desc: "デジタル庁 / 総務省で標準採用。公的サイトの定番を実測で確認。",
+          },
+          {
+            name: "Noto Serif JP",
+            dbName: "Noto Serif JP:wght@700",
+            color: " card-yellow",
+            desc: "首相官邸の見出しで使用。フォーマルな文書表現の実例。",
+          },
+          {
+            name: "BIZ UDPGothic",
+            dbName: "BIZ UDPGothic",
+            color: " card-blue",
+            desc: "文化庁で検出。国産ユニバーサルデザイン書体の行政採用例。",
+          },
+          {
+            name: "M PLUS Rounded 1c",
+            dbName: "M PLUS Rounded 1c:wght@700",
+            color: " card-lime",
+            desc: "こども家庭庁で検出。丸ゴシックの親しみやすいトーンを選択。",
+          },
+        ].map((font) => (
+          <a
+            key={font.name}
+            href={`/font/${encodeURIComponent(font.dbName)}`}
+            className={`card${font.color}`}
+            style={{ textDecoration: "none", color: "var(--ink)" }}
+          >
+            <h3>{font.name}</h3>
+            <p>{font.desc}</p>
+          </a>
+        ))}
       </div>
 
       {loading ? (
