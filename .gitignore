@@ -22,6 +22,7 @@ wrangler.toml.bak
 # misc
 .DS_Store
 *.log
+government_websites.csv
 npm-debug.log*
 pnpm-debug.log*
 
