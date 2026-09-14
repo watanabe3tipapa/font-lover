@@ -24,97 +24,85 @@ export default function DashboardPage() {
       .catch(() => setLoading(false));
   }, []);
 
-  if (loading) return <p>読み込み中...</p>;
-  if (!stats) return <p>統計データを取得できませんでした。</p>;
+  if (loading) return <p className="loading">LOADING...</p>;
+  if (!stats) return <div className="notice">統計データを取得できませんでした。</div>;
 
   const maxPop = Math.max(...stats.topFonts.map((f) => f.popularityScore), 1);
 
   return (
     <div>
-      <h2 style={{ fontSize: "1.8rem", marginBottom: "1rem", color: "#1e3a8a" }}>統計ダッシュボード</h2>
+      <h2 className="page-title">統計ダッシュボード</h2>
+      <p className="page-sub">観測データの要約。数字はすべて D1 / SQLite からリアルタイム集計しています。</p>
 
-      {/* サマリーカード */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: "1rem", marginBottom: "2rem" }}>
-        <div style={{ background: "#1e3a8a", color: "#fff", padding: "1.2rem", borderRadius: 12 }}>
-          <div style={{ fontSize: "0.85rem", opacity: 0.8 }}>総フォント数</div>
-          <div style={{ fontSize: "2rem", fontWeight: 700 }}>{stats.totalFonts}</div>
+      <div className="stat-grid">
+        <div className="stat-card card-yellow">
+          <div className="stat-label">総フォント数</div>
+          <div className="stat-value">{stats.totalFonts}</div>
         </div>
-        <div style={{ background: "#f59e0b", color: "#fff", padding: "1.2rem", borderRadius: 12 }}>
-          <div style={{ fontSize: "0.85rem", opacity: 0.8 }}>総採集回数</div>
-          <div style={{ fontSize: "2rem", fontWeight: 700 }}>{stats.totalSightings}</div>
+        <div className="stat-card card-pink">
+          <div className="stat-label">総採集回数</div>
+          <div className="stat-value">{stats.totalSightings}</div>
         </div>
       </div>
 
-      {/* カテゴリ分布 */}
-      <h3 style={{ fontSize: "1.2rem", color: "#1e3a8a", marginBottom: "0.8rem" }}>カテゴリ分布</h3>
-      <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e2e8f0", padding: "1rem", marginBottom: "2rem" }}>
-        {stats.categoryDistribution.map((cat) => (
-          <div key={cat.category} style={{ display: "flex", alignItems: "center", gap: "0.8rem", marginBottom: "0.5rem" }}>
-            <div style={{ width: 100, fontSize: "0.85rem", fontWeight: 500 }}>{cat.category}</div>
-            <div style={{ flex: 1, height: 20, background: "#f1f5f9", borderRadius: 10, overflow: "hidden" }}>
-              <div
-                style={{
-                  height: "100%",
-                  width: `${(cat.count / Math.max(...stats.categoryDistribution.map((c) => c.count))) * 100}%`,
-                  background: "#1e3a8a",
-                  borderRadius: 10,
-                  transition: "width 0.5s ease",
-                }}
-              />
-            </div>
-            <div style={{ width: 40, textAlign: "right", fontSize: "0.85rem", color: "#475569" }}>{cat.count}</div>
-          </div>
-        ))}
+      <h3 className="dash-section-title">カテゴリ分布</h3>
+      <div className="card">
+        {stats.categoryDistribution.length === 0 ? (
+          <p>データがありません。</p>
+        ) : (
+          stats.categoryDistribution.map((cat) => {
+            const max = Math.max(...stats.categoryDistribution.map((c) => c.count));
+            return (
+              <div key={cat.category} className="bar-row">
+                <div className="bar-label">{cat.category}</div>
+                <div className="bar-track">
+                  <div className="bar-fill" style={{ width: `${(cat.count / max) * 100}%` }} />
+                </div>
+                <div className="bar-num">{cat.count}</div>
+              </div>
+            );
+          })
+        )}
       </div>
 
-      {/* ソース分布 */}
-      <h3 style={{ fontSize: "1.2rem", color: "#1e3a8a", marginBottom: "0.8rem" }}>ソース種別分布</h3>
-      <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e2e8f0", padding: "1rem", marginBottom: "2rem" }}>
-        {stats.sourceDistribution.map((src) => (
-          <div key={src.sourceType} style={{ display: "flex", alignItems: "center", gap: "0.8rem", marginBottom: "0.5rem" }}>
-            <div style={{ width: 120, fontSize: "0.85rem", fontWeight: 500 }}>{src.sourceType}</div>
-            <div style={{ flex: 1, height: 20, background: "#f1f5f9", borderRadius: 10, overflow: "hidden" }}>
-              <div
-                style={{
-                  height: "100%",
-                  width: `${(src.count / Math.max(...stats.sourceDistribution.map((s) => s.count))) * 100}%`,
-                  background: "#f59e0b",
-                  borderRadius: 10,
-                  transition: "width 0.5s ease",
-                }}
-              />
-            </div>
-            <div style={{ width: 40, textAlign: "right", fontSize: "0.85rem", color: "#475569" }}>{src.count}</div>
-          </div>
-        ))}
+      <h3 className="dash-section-title">ソース種別分布</h3>
+      <div className="card">
+        {stats.sourceDistribution.length === 0 ? (
+          <p>データがありません。</p>
+        ) : (
+          stats.sourceDistribution.map((src) => {
+            const max = Math.max(...stats.sourceDistribution.map((s) => s.count));
+            return (
+              <div key={src.sourceType} className="bar-row">
+                <div className="bar-label">{src.sourceType}</div>
+                <div className="bar-track">
+                  <div className="bar-fill bar-fill-blue" style={{ width: `${(src.count / max) * 100}%` }} />
+                </div>
+                <div className="bar-num">{src.count}</div>
+              </div>
+            );
+          })
+        )}
       </div>
 
-      {/* 人気フォントランキング */}
-      <h3 style={{ fontSize: "1.2rem", color: "#1e3a8a", marginBottom: "0.8rem" }}>人気フォント TOP 10</h3>
-      <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e2e8f0", padding: "1rem" }}>
+      <h3 className="dash-section-title">人気フォント TOP 10</h3>
+      <div className="card">
         {stats.topFonts.slice(0, 10).map((font, i) => (
-          <div key={font.familyName} style={{ display: "flex", alignItems: "center", gap: "0.8rem", marginBottom: "0.5rem" }}>
-            <div style={{ width: 28, textAlign: "center", fontWeight: 700, color: "#f59e0b" }}>{i + 1}</div>
+          <div key={font.familyName} className="bar-row">
+            <span className="rank-num">{i + 1}</span>
             <a
               href={`/font/${encodeURIComponent(font.familyName)}`}
-              style={{ width: 200, fontSize: "0.9rem", color: "#1e3a8a", textDecoration: "none", fontWeight: 500 }}
+              style={{ width: 200, fontSize: "0.9rem", fontWeight: 600, textDecoration: "none", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
             >
               {font.familyName}
             </a>
-            <div style={{ flex: 1, height: 16, background: "#f1f5f9", borderRadius: 8, overflow: "hidden" }}>
+            <div className="bar-track">
               <div
-                style={{
-                  height: "100%",
-                  width: `${(font.popularityScore / maxPop) * 100}%`,
-                  background: "#1e3a8a",
-                  borderRadius: 8,
-                  transition: "width 0.5s ease",
-                }}
+                className="bar-fill bar-fill-green"
+                style={{ width: `${(font.popularityScore / maxPop) * 100}%` }}
               />
             </div>
-            <div style={{ width: 50, textAlign: "right", fontSize: "0.8rem", color: "#475569" }}>
-              {Math.round(font.popularityScore)}
-            </div>
+            <div className="bar-num">{Math.round(font.popularityScore)}</div>
           </div>
         ))}
       </div>

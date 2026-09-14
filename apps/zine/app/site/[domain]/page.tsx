@@ -29,39 +29,29 @@ export default function SitePage() {
 
   return (
     <div>
-      <a href="/" style={{ color: "#1e3a8a", textDecoration: "none", fontSize: "0.9rem" }}>← 図鑑トップへ</a>
-      <h2 style={{ fontSize: "1.8rem", marginTop: "1rem", color: "#1e3a8a" }}>{domain}</h2>
-      <p style={{ color: "#475569" }}>このサイトで検出されたフォント一覧</p>
+      <a href="/" className="back-link">← 図鑑トップへ</a>
+      <h2 className="page-title">{domain}</h2>
+      <p className="page-sub">このサイトで検出されたフォント一覧</p>
 
       {loading ? (
-        <p>読み込み中...</p>
+        <p className="loading">LOADING...</p>
       ) : fonts.length === 0 ? (
-        <p style={{ color: "#475569", marginTop: "1rem" }}>まだフォントが検出されていません。</p>
+        <div className="notice">まだフォントが検出されていません。</div>
       ) : (
-        <div style={{ marginTop: "1rem", display: "grid", gap: "0.6rem" }}>
+        <div style={{ marginTop: "1rem" }}>
           {fonts.map((font, i) => (
             <a
               key={i}
               href={`/font/${encodeURIComponent(font.familyName)}`}
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                padding: "0.9rem 1rem",
-                background: "#fff",
-                borderRadius: 8,
-                border: "1px solid #e2e8f0",
-                textDecoration: "none",
-                color: "inherit",
-              }}
+              className="row"
             >
               <div>
-                <div style={{ fontWeight: 700 }}>{font.familyName}</div>
-                <div style={{ fontSize: "0.8rem", color: "#475569", marginTop: "0.15rem" }}>
+                <div className="row-main">{font.familyName}</div>
+                <div className="row-sub">
                   {font.category} · {font.sourceType}
                 </div>
               </div>
-              <div style={{ fontSize: "0.8rem", color: "#475569", textAlign: "right" }}>
+              <div className="row-right">
                 <div>{new Date(font.detectedAt).toLocaleDateString("ja-JP")}</div>
                 {font.usageCount ? <div>使用数: {font.usageCount}</div> : null}
               </div>

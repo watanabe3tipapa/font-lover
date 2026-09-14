@@ -19,27 +19,28 @@ export default async function InspectorPage() {
   if (REMOTE) {
     return (
       <div>
-        <a href="/" style={{ color: "#1e3a8a", textDecoration: "none", fontSize: "0.9rem" }}>
-          ← 図鑑トップへ
-        </a>
-        <h2 style={{ fontSize: "1.8rem", marginTop: "1rem", color: "#1e3a8a" }}>DBインスペクタ</h2>
-        <p style={{ color: "#475569", fontSize: "0.9rem" }}>
+        <a href="/" className="back-link">← 図鑑トップへ</a>
+        <h2 className="page-title">DBインスペクタ</h2>
+        <div className="notice" style={{ borderLeftColor: "var(--blue)" }}>
           リモートモード（collector / D1 プロキシ）ではローカルSQLiteは直接表示しません。
-        </p>
-        <ul>
-          <li>
-            <a href="/api/fonts" style={{ color: "#1e3a8a" }}>/api/fonts</a> — フォント一覧
-          </li>
-          <li>
-            <a href="/api/stats" style={{ color: "#1e3a8a" }}>/api/stats</a> — 統計
-          </li>
-          <li>
-            <a href="/api/okf" style={{ color: "#1e3a8a" }}>/api/okf</a> — OKF知識バンドル（コミット済みJSON）
-          </li>
-          <li>
-            <a href="/okf" style={{ color: "#1e3a8a" }}>/okf</a> — OKFビューワー
-          </li>
-        </ul>
+          代わりに公開 API をどうぞ。
+        </div>
+        <div style={{ display: "grid", gap: "1.5rem" }}>
+          {[
+            { href: "/api/fonts", label: "/api/fonts", desc: "フォント一覧" },
+            { href: "/api/stats", label: "/api/stats", desc: "統計" },
+            { href: "/api/okf", label: "/api/okf", desc: "OKF知識バンドル（コミット済みJSON）" },
+            { href: "/okf", label: "/okf", desc: "OKFビューワー" },
+          ].map((item) => (
+            <a key={item.href} href={item.href} className="row">
+              <div>
+                <div className="row-main"><code>{item.label}</code></div>
+                <div className="row-sub">{item.desc}</div>
+              </div>
+              <div className="row-right">OPEN →</div>
+            </a>
+          ))}
+        </div>
       </div>
     );
   }
@@ -57,65 +58,31 @@ export default async function InspectorPage() {
 
   return (
     <div>
-      <a href="/" style={{ color: "#1e3a8a", textDecoration: "none", fontSize: "0.9rem" }}>
-        ← 図鑑トップへ
-      </a>
-      <h2 style={{ fontSize: "1.8rem", marginTop: "1rem", color: "#1e3a8a" }}>DBインスペクタ</h2>
-      <p style={{ color: "#475569", fontSize: "0.9rem" }}>
-        ローカルDB（better-sqlite3）の中身をそのままJSONで表示します。再読み込みで最新状態を確認できます。
+      <a href="/" className="back-link">← 図鑑トップへ</a>
+      <h2 className="page-title">DBインスペクタ</h2>
+      <p className="page-sub">
+        ローカルDB（better-sqlite3）の中身をそのまま JSON で表示します。再読み込みで最新状態を確認できます。
       </p>
 
       {tables.map((table) => (
-        <details
-          key={table.name}
-          open
-          style={{
-            marginTop: "1rem",
-            border: "1px solid #e2e8f0",
-            borderRadius: 8,
-            background: "#fff",
-            overflow: "hidden",
-          }}
-        >
-          <summary
-            style={{
-              padding: "0.7rem 1rem",
-              fontWeight: 700,
-              color: "#1e3a8a",
-              background: "#f8fafc",
-              cursor: "pointer",
-            }}
-          >
+        <details key={table.name} open className="okf-item">
+          <summary>
             {table.name}
-            <span style={{ color: "#64748b", fontWeight: 500, marginLeft: "0.6em" }}>
+            <span style={{ marginLeft: "0.8rem", opacity: 0.7, fontWeight: 500 }}>
               {errors[table.name] ? "(取得失敗)" : `${rows[table.name].length} rows`}
             </span>
           </summary>
           {errors[table.name] ? (
             <pre
-              style={{
-                margin: 0,
-                padding: "1rem",
-                background: "#fef2f2",
-                color: "#b91c1c",
-                fontSize: "0.85rem",
-                overflow: "auto",
-              }}
+              className="okf-tags"
+              style={{ border: "3px solid var(--ink)", background: "var(--red)", color: "var(--white)" }}
             >
               {errors[table.name]}
             </pre>
           ) : (
             <pre
-              style={{
-                margin: 0,
-                padding: "1rem",
-                background: "#0b1220",
-                color: "#e2e8f0",
-                fontSize: "0.85rem",
-                lineHeight: 1.6,
-                maxHeight: 480,
-                overflow: "auto",
-              }}
+              className="okf-tags"
+              style={{ maxHeight: 480, overflow: "auto" }}
             >
               {JSON.stringify(rows[table.name], null, 2)}
             </pre>

@@ -37,26 +37,20 @@ export default function FontDetailPage() {
       .catch(() => setLoading(false));
   }, [family]);
 
-  if (loading) return <p>読み込み中...</p>;
-  if (!font) return <p>フォントが見つかりませんでした。</p>;
+  if (loading) return <p className="loading">LOADING...</p>;
+  if (!font) return <div className="notice">フォントが見つかりませんでした。</div>;
 
   return (
     <div>
-      <a href="/" style={{ color: "#1e3a8a", textDecoration: "none", fontSize: "0.9rem" }}>← 図鑑トップへ</a>
+      <a href="/" className="back-link">← 図鑑トップへ</a>
 
-      <h2 style={{ fontSize: "2rem", marginTop: "1rem", color: "#1e3a8a" }}>{font.familyName}</h2>
+      <h2 className="page-title">{font.familyName}</h2>
 
-      <div style={{ display: "flex", gap: "0.5rem", marginTop: "0.5rem", flexWrap: "wrap" }}>
-        <span style={{ background: "#1e3a8a", color: "#fff", padding: "0.2em 0.7em", borderRadius: 999, fontSize: "0.8rem" }}>
-          {font.category}
-        </span>
-        <span style={{ background: "#f59e0b", color: "#fff", padding: "0.2em 0.7em", borderRadius: 999, fontSize: "0.8rem" }}>
-          {font.sourceType}
-        </span>
+      <div style={{ marginBottom: "1rem" }}>
+        <span className="pill pill-blue">{font.category}</span>
+        <span className="pill pill-green">{font.sourceType}</span>
         {font.popularityScore ? (
-          <span style={{ background: "#0f172a", color: "#fff", padding: "0.2em 0.7em", borderRadius: 999, fontSize: "0.8rem" }}>
-            採集回数: {Math.round(font.popularityScore)}
-          </span>
+          <span className="pill pill-yellow">採集 ×{Math.round(font.popularityScore)}</span>
         ) : null}
       </div>
 
@@ -66,71 +60,52 @@ export default function FontDetailPage() {
         rel="stylesheet"
       />
       <div
+        className="card card-yellow"
         style={{
-          marginTop: "1.5rem",
-          padding: "1.5rem",
-          background: "#fff",
-          borderRadius: 12,
-          border: "1px solid #e2e8f0",
           fontFamily: `"${font.familyName}", sans-serif`,
           fontSize: "1.5rem",
         }}
       >
-        The quick brown fox jumps over the lazy dog.
-        <br />
-        あいうえお、かきくけこ。フォントのプレビュー表示。
+        <div style={{ fontWeight: 700 }}>{font.familyName}</div>
+        <div style={{ fontSize: "1rem" }}>
+          The quick brown fox jumps over the lazy dog.
+          <br />
+          あいうえお、かきくけこ。フォントのプレビュー表示。
+        </div>
       </div>
 
       {/* 採集記録 */}
-      <h3 style={{ fontSize: "1.2rem", marginTop: "2rem", color: "#1e3a8a" }}>採集記録</h3>
+      <h3 className="dash-section-title">採集記録</h3>
       {sightings.length === 0 ? (
-        <p style={{ color: "#475569" }}>まだ採集記録がありません。</p>
+        <div className="notice">まだ採集記録がありません。</div>
       ) : (
-        <div style={{ marginTop: "0.8rem", display: "grid", gap: "0.5rem" }}>
+        <div style={{ marginTop: "0.8rem" }}>
           {sightings.map((s, i) => (
-            <div
+            <a
               key={i}
-              style={{
-                padding: "0.8rem 1rem",
-                background: "#fff",
-                borderRadius: 8,
-                border: "1px solid #e2e8f0",
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-              }}
+              href={s.siteUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="row"
             >
-              <a
-                href={s.siteUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{ color: "#1e3a8a", textDecoration: "none", fontWeight: 500 }}
-              >
-                {s.siteDomain}
-              </a>
-              <span style={{ fontSize: "0.8rem", color: "#475569" }}>
-                {new Date(s.detectedAt).toLocaleDateString("ja-JP")}
-                {s.usageCount ? ` · 使用数: ${s.usageCount}` : ""}
-              </span>
-            </div>
+              <div>
+                <div className="row-main">{s.siteDomain}</div>
+                <div className="row-sub">URL: {s.siteUrl}</div>
+              </div>
+              <div className="row-right">
+                <div>{new Date(s.detectedAt).toLocaleDateString("ja-JP")}</div>
+                {s.usageCount ? <div>使用数: {s.usageCount}</div> : null}
+              </div>
+            </a>
           ))}
         </div>
       )}
 
       {/* MDN解説セクション（拡張用） */}
-      <h3 style={{ fontSize: "1.2rem", marginTop: "2rem", color: "#1e3a8a" }}>MDN 解説</h3>
-      <div
-        style={{
-          marginTop: "0.8rem",
-          padding: "1rem",
-          background: "#f8fafc",
-          borderRadius: 8,
-          border: "1px solid #e2e8f0",
-          color: "#475569",
-          fontSize: "0.95rem",
-        }}
-      >
+      <h3 className="dash-section-title">MDN 解説</h3>
+      <div className="notice" style={{ borderLeftColor: "var(--blue)" }}>
         MDN Web Docs からのフォント関連解説をここに表示します。
+        <br />
         <code>font_mdn_refs</code> テーブルとの連携を実装してください。
       </div>
     </div>
