@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FONT-LOVER — Webフォント探検ツール</title>
+<meta name="description" content="Webサイトから使用されているフォントを自動検出し、 каталогとして閲覧できるオープンソースツール。OKF v0.2準拠の知見バンドルを自動生成します。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0e1a;--bg2:#111827;--bg3:#1e293b;
+  --fg:#e2e8f0;--fg2:#94a3b8;--fg3:#64748b;
+  --accent:#3b82f6;--accent2:#60a5fa;
+  --orange:#f97316;--orange2:#fb923c;
+  --green:#10b981;--green2:#34d399;
+  --purple:#a855f7;--purple2:#c084fc;
+  --red:#ef4444;
+  --vercel:#fff;--cloudflare:#f6821f;--d1:#f5c518;
+  --radius:12px;--radius-sm:8px;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--fg);line-height:1.7;overflow-x:hidden}
+a{color:var(--accent2);text-decoration:none}
+a:hover{text-decoration:underline}
+code,pre{font-family:'JetBrains Mono',monospace}
+pre{background:var(--bg3);border:1px solid rgba(255,255,255,.06);border-radius:var(--radius-sm);padding:1rem 1.2rem;overflow-x:auto;font-size:.85rem;line-height:1.6;color:#e2e8f0}
+code{background:var(--bg3);padding:.15em .4em;border-radius:4px;font-size:.88em;color:var(--accent2)}
+pre code{background:none;padding:0;border-radius:0}
+
+.container{max-width:1100px;margin:0 auto;padding:0 1.5rem}
+section{padding:5rem 0}
+section:nth-child(even){background:var(--bg2)}
+
+/* Nav */
+nav{position:sticky;top:0;z-index:100;background:rgba(10,14,26,.85);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.06);padding:.8rem 0}
+nav .inner{display:flex;align-items:center;justify-content:space-between;max-width:1100px;margin:0 auto;padding:0 1.5rem}
+nav .logo{font-weight:800;font-size:1.1rem;color:#fff;letter-spacing:-.02em}
+nav .logo span{color:var(--accent2)}
+nav ul{list-style:none;display:flex;gap:1.5rem}
+nav li a{color:var(--fg2);font-size:.88rem;font-weight:500;transition:color .2s}
+nav li a:hover{color:#fff;text-decoration:none}
+
+/* Hero */
+.hero{padding:8rem 0 5rem;text-align:center;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-40%;left:50%;transform:translateX(-50%);width:800px;height:800px;background:radial-gradient(circle,rgba(59,130,246,.12) 0%,transparent 70%);pointer-events:none}
+.hero h1{font-size:clamp(2.5rem,6vw,4.5rem);font-weight:800;letter-spacing:-.03em;color:#fff;line-height:1.1;margin-bottom:1rem}
+.hero h1 span{background:linear-gradient(135deg,var(--accent2),var(--purple2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero .sub{font-size:1.15rem;color:var(--fg2);max-width:600px;margin:0 auto 2.5rem}
+.hero .badges{display:flex;gap:.8rem;justify-content:center;flex-wrap:wrap;margin-bottom:2.5rem}
+.badge{display:inline-flex;align-items:center;gap:.4rem;padding:.35rem .8rem;border-radius:999px;font-size:.78rem;font-weight:600;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04)}
+.badge.vercel{border-color:rgba(255,255,255,.2)}
+.badge.cloudflare{border-color:rgba(246,130,31,.3);color:var(--orange2)}
+.badge.d1{border-color:rgba(245,197,24,.3);color:var(--d1)}
+.badge.okf{border-color:rgba(168,85,247,.3);color:var(--purple2)}
+.cta-group{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:.5rem;padding:.8rem 1.8rem;border-radius:var(--radius-sm);font-weight:600;font-size:.95rem;transition:all .2s;border:none;cursor:pointer}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover{background:var(--accent2);text-decoration:none;color:#fff}
+.btn-outline{background:transparent;color:var(--fg);border:1px solid rgba(255,255,255,.15)}
+.btn-outline:hover{border-color:rgba(255,255,255,.3);background:rgba(255,255,255,.04);text-decoration:none;color:#fff}
+
+/* Section titles */
+.section-label{font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--accent);margin-bottom:.5rem}
+.section-title{font-size:clamp(1.6rem,3.5vw,2.4rem);font-weight:800;color:#fff;letter-spacing:-.02em;margin-bottom:1rem}
+.section-desc{color:var(--fg2);font-size:1.05rem;max-width:700px;margin-bottom:3rem}
+
+/* Architecture SVG */
+.arch-diagram{background:var(--bg);border:1px solid rgba(255,255,255,.06);border-radius:var(--radius);padding:2rem;margin:2rem 0;overflow-x:auto}
+.arch-diagram svg{width:100%;height:auto;display:block}
+.arch-diagram svg text{font-family:'Inter',system-ui,sans-serif}
+
+/* Flow cards */
+.flow-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem;margin:2rem 0}
+.flow-card{background:var(--bg3);border:1px solid rgba(255,255,255,.06);border-radius:var(--radius);padding:1.5rem;transition:border-color .2s}
+.flow-card:hover{border-color:rgba(59,130,246,.3)}
+.flow-card .icon{width:48px;height:48px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;margin-bottom:1rem}
+.flow-card h3{font-size:1rem;font-weight:700;color:#fff;margin-bottom:.5rem}
+.flow-card p{color:var(--fg2);font-size:.9rem}
+.flow-card .step-num{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;font-size:.8rem;font-weight:700;margin-bottom:.8rem}
+
+/* Steps */
+.steps{counter-reset:step}
+.step{display:flex;gap:1.5rem;margin-bottom:2.5rem;position:relative}
+.step::before{counter-increment:step;content:counter(step);position:relative;display:flex;align-items:center;justify-content:center;min-width:36px;height:36px;border-radius:50%;background:var(--accent);color:#fff;font-weight:700;font-size:.9rem;flex-shrink:0}
+.step-content{flex:1}
+.step-content h3{font-size:1.05rem;font-weight:700;color:#fff;margin-bottom:.4rem}
+.step-content p{color:var(--fg2);font-size:.92rem}
+.step-content code{font-size:.82rem}
+
+/* Endpoint table */
+.api-table{width:100%;border-collapse:collapse;margin:1.5rem 0}
+.api-table th,.api-table td{text-align:left;padding:.7rem 1rem;border-bottom:1px solid rgba(255,255,255,.06);font-size:.9rem}
+.api-table th{color:var(--fg3);font-weight:600;font-size:.78rem;text-transform:uppercase;letter-spacing:.08em}
+.api-table td{color:var(--fg)}
+.method{display:inline-block;padding:.15rem .5rem;border-radius:4px;font-size:.75rem;font-weight:700;font-family:'JetBrains Mono',monospace}
+.method.get{background:rgba(16,185,129,.15);color:var(--green2)}
+.method.post{background:rgba(249,115,22,.15);color:var(--orange2)}
+
+/* Tech stack */
+.tech-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem}
+.tech-item{background:var(--bg3);border:1px solid rgba(255,255,255,.06);border-radius:var(--radius-sm);padding:1.2rem;display:flex;align-items:center;gap:1rem}
+.tech-item .icon{width:42px;height:42px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0}
+.tech-item .info h4{font-size:.9rem;font-weight:600;color:#fff}
+.tech-item .info p{font-size:.78rem;color:var(--fg3)}
+
+/* Comparison */
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin:2rem 0}
+.compare-box{background:var(--bg3);border:1px solid rgba(255,255,255,.06);border-radius:var(--radius);padding:1.5rem}
+.compare-box h3{font-size:1rem;font-weight:700;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem}
+.compare-box.local h3{color:var(--green2)}
+.compare-box.prod h3{color:var(--accent2)}
+.compare-box ul{list-style:none;font-size:.88rem;color:var(--fg2)}
+.compare-box li{padding:.4rem 0;padding-left:1.2rem;position:relative}
+.compare-box li::before{content:'';position:absolute;left:0;top:.75rem;width:6px;height:6px;border-radius:50%}
+.compare-box.local li::before{background:var(--green)}
+.compare-box.prod li::before{background:var(--accent)}
+
+/* OKF section */
+.okf-flow{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;justify-content:center;margin:2rem 0}
+.okf-node{background:var(--bg3);border:1px solid rgba(255,255,255,.08);border-radius:var(--radius-sm);padding:1rem 1.2rem;text-align:center;min-width:140px}
+.okf-node h4{font-size:.82rem;font-weight:700;color:#fff;margin-bottom:.3rem}
+.okf-node p{font-size:.75rem;color:var(--fg3)}
+.okf-arrow{color:var(--fg3);font-size:1.5rem;flex-shrink:0}
+
+/* Demo embed */
+.demo-frame{border:1px solid rgba(255,255,255,.08);border-radius:var(--radius);overflow:hidden;margin:2rem 0;background:var(--bg3)}
+.demo-frame iframe{width:100%;height:500px;border:none;display:block}
+.demo-bar{display:flex;align-items:center;gap:.5rem;padding:.6rem 1rem;background:rgba(0,0,0,.3);border-bottom:1px solid rgba(255,255,255,.06)}
+.demo-bar .dot{width:10px;height:10px;border-radius:50%}
+.demo-bar .dot:nth-child(1){background:#ef4444}
+.demo-bar .dot:nth-child(2){background:#f59e0b}
+.demo-bar .dot:nth-child(3){background:#10b981}
+.demo-bar .url{flex:1;text-align:center;font-size:.8rem;color:var(--fg3);font-family:'JetBrains Mono',monospace}
+
+/* Footer */
+footer{padding:3rem 0;text-align:center;border-top:1px solid rgba(255,255,255,.06);color:var(--fg3);font-size:.85rem}
+
+@media(max-width:768px){
+  .compare{grid-template-columns:1fr}
+  nav ul{display:none}
+  section{padding:3rem 0}
+  .hero{padding:5rem 0 3rem}
+}
+</style>
+</head>
+<body>
+
+<nav>
+<div class="inner">
+  <div class="logo">FONT<span>-LOVER</span></div>
+  <ul>
+    <li><a href="#architecture">アーキテクチャ</a></li>
+    <li><a href="#how-it-works">仕組み</a></li>
+    <li><a href="#demo">デモ</a></li>
+    <li><a href="#api">API</a></li>
+    <li><a href="#tutorial">チュートリアル</a></li>
+    <li><a href="https://github.com/watanabe3tipapa/font-lover" target="_blank">GitHub</a></li>
+  </ul>
+</div>
+</nav>
+
+<!-- ===== HERO ===== -->
+<section class="hero">
+<div class="container">
+  <div class="badges">
+    <span class="badge vercel">▲ Vercel</span>
+    <span class="badge cloudflare">☁ Cloudflare Workers</span>
+    <span class="badge d1">SQLite D1</span>
+    <span class="badge okf">OKF v0.2</span>
+  </div>
+  <h1><span>FONT-LOVER</span><br>Webフォント探検ツール</h1>
+  <p class="sub">Webサイトから使用されているフォントを自動検出し、ディストリビューションデータベースとして閲覧・分析できるオープンソースツールです。OKF v0.2 準拠の知見バンドルを自動生成します。</p>
+  <div class="cta-group">
+    <a href="#demo" class="btn btn-primary">▶ デモを見る</a>
+    <a href="#tutorial" class="btn btn-outline">📖 チュートリアル</a>
+    <a href="https://github.com/watanabe3tipapa/font-lover" class="btn btn-outline" target="_blank">GitHub</a>
+  </div>
+</div>
+</section>
+
+<!-- ===== PROBLEM / SOLUTION ===== -->
+<section>
+<div class="container">
+  <p class="section-label">Why</p>
+  <h2 class="section-title">なぜ FONT-LOVER が必要か</h2>
+  <p class="section-desc">Webデザインにおいてフォント選択は重要な意思決定の一つですが、他サイトでどのようなフォントが実際に使用されているかを体系的に把握する手段は限られていました。</p>
+  <div class="flow-grid">
+    <div class="flow-card">
+      <div class="icon" style="background:rgba(239,68,68,.12);color:var(--red)">🔍</div>
+      <h3>手動調査の限界</h3>
+      <p>ブラウザの開発者ツールで1サイトずつ確認する必要がある。大量のサイトを横断的に分析することは困難です。</p>
+    </div>
+    <div class="flow-card">
+      <div class="icon" style="background:rgba(249,115,22,.12);color:var(--orange)">📊</div>
+      <h3>データの分散</h3>
+      <p>Google Fonts の人気ランキングと、実際のWebサイトでの使用率にはギャップがある。実際の採用データを収集する仕組みが必要です。</p>
+    </div>
+    <div class="flow-card">
+      <div class="icon" style="background:rgba(168,85,247,.12);color:var(--purple)">📚</div>
+      <h3>知見の形式化</h3>
+      <p>フォントに関する知識を機械可読な形式で整理し、再利用可能な形に保つ仕組みがありませんでした。</p>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ===== ARCHITECTURE ===== -->
+<section id="architecture">
+<div class="container">
+  <p class="section-label">Architecture</p>
+  <h2 class="section-title">システムアーキテクチャ</h2>
+  <p class="section-desc">3層構成のマルチクラウドアーキテクチャ。GitHub でソースを管理し、Vercel でフロントエンド、Cloudflare Workers + D1 でデータ収集と保存を担当します。</p>
+
+  <div class="arch-diagram">
+    <svg viewBox="0 0 960 520" xmlns="http://www.w3.org/2000/svg">
+      <!-- Background -->
+      <defs>
+        <linearGradient id="gVercel" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#1a1a2e"/><stop offset="100%" stop-color="#16213e"/></linearGradient>
+        <linearGradient id="gCF" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#1a1208"/><stop offset="100%" stop-color="#2d1b00"/></linearGradient>
+        <linearGradient id="gD1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#1a1800"/><stop offset="100%" stop-color="#2d2600"/></linearGradient>
+        <linearGradient id="gGH" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#0d1117"/><stop offset="100%" stop-color="#161b22"/></linearGradient>
+        <filter id="shadow"><feDropShadow dx="0" dy="2" stdDeviation="4" flood-opacity=".3"/></filter>
+        <marker id="arrowBlue" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#60a5fa"/></marker>
+        <marker id="arrowOrange" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#fb923c"/></marker>
+        <marker id="arrowGreen" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#34d399"/></marker>
+        <marker id="arrowGray" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#94a3b8"/></marker>
+        <marker id="arrowPurple" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#c084fc"/></marker>
+      </defs>
+
+      <!-- Title -->
+      <text x="480" y="30" text-anchor="middle" fill="#64748b" font-size="12" font-weight="600" letter-spacing=".1em">SYSTEM ARCHITECTURE</text>
+
+      <!-- ===== User's Browser ===== -->
+      <rect x="370" y="50" width="220" height="56" rx="10" fill="#1e293b" stroke="#334155" stroke-width="1.5" filter="url(#shadow)"/>
+      <text x="480" y="74" text-anchor="middle" fill="#e2e8f0" font-size="14" font-weight="700">🌐 ユーザーのブラウザ</text>
+      <text x="480" y="94" text-anchor="middle" fill="#94a3b8" font-size="10">font-lover.vercel.app</text>
+
+      <!-- Arrow: Browser → Vercel -->
+      <line x1="420" y1="106" x2="290" y2="170" stroke="#60a5fa" stroke-width="1.5" marker-end="url(#arrowBlue)" stroke-dasharray="6,3"/>
+      <text x="330" y="135" fill="#60a5fa" font-size="9" font-weight="600">HTTPS</text>
+
+      <!-- Arrow: Browser → Cloudflare (scan) -->
+      <line x1="540" y1="106" x2="670" y2="170" stroke="#fb923c" stroke-width="1.5" marker-end="url(#arrowOrange)" stroke-dasharray="6,3"/>
+      <text x="630" y="135" fill="#fb923c" font-size="9" font-weight="600">POST /api/scan</text>
+
+      <!-- ===== Vercel Box ===== -->
+      <rect x="60" y="170" width="400" height="140" rx="14" fill="url(#gVercel)" stroke="#334155" stroke-width="1.5"/>
+      <text x="80" y="195" fill="#94a3b8" font-size="10" font-weight="700" letter-spacing=".08em">VERCEL</text>
+      <text x="145" y="195" fill="#475569" font-size="9">Next.js App Router</text>
+
+      <!-- Vercel internal blocks -->
+      <rect x="80" y="210" width="110" height="44" rx="7" fill="rgba(59,130,246,.12)" stroke="rgba(59,130,246,.25)" stroke-width="1"/>
+      <text x="135" y="229" text-anchor="middle" fill="#60a5fa" font-size="10" font-weight="600">Zine (UI)</text>
+      <text x="135" y="244" text-anchor="middle" fill="#94a3b8" font-size="8">/okf, /inspector</text>
+
+      <rect x="200" y="210" width="110" height="44" rx="7" fill="rgba(59,130,246,.12)" stroke="rgba(59,130,246,.25)" stroke-width="1"/>
+      <text x="255" y="229" text-anchor="middle" fill="#60a5fa" font-size="10" font-weight="600">API Routes</text>
+      <text x="255" y="244" text-anchor="middle" fill="#94a3b8" font-size="8">/api/fonts, /api/okf</text>
+
+      <rect x="320" y="210" width="120" height="44" rx="7" fill="rgba(16,185,129,.1)" stroke="rgba(16,185,129,.25)" stroke-width="1"/>
+      <text x="380" y="229" text-anchor="middle" fill="#34d399" font-size="10" font-weight="600">lib/data.ts</text>
+      <text x="380" y="244" text-anchor="middle" fill="#94a3b8" font-size="8">REMOTE 切替レイヤ</text>
+
+      <!-- Vercel → committed JSON -->
+      <rect x="120" y="262" width="280" height="34" rx="6" fill="rgba(168,85,247,.08)" stroke="rgba(168,85,247,.2)" stroke-width="1"/>
+      <text x="260" y="283" text-anchor="middle" fill="#c084fc" font-size="9" font-weight="500">📄 pipeline/knowledge/*.json (コミット済みOKF v0.2 バンドル)</text>
+
+      <!-- Arrow: Vercel → Cloudflare (proxy) -->
+      <line x1="460" y1="250" x2="540" y2="250" stroke="#fb923c" stroke-width="1.8" marker-end="url(#arrowOrange)"/>
+      <text x="500" y="242" text-anchor="middle" fill="#fb923c" font-size="8" font-weight="600">COLLECTOR_URL</text>
+      <text x="500" y="266" text-anchor="middle" fill="#94a3b8" font-size="8">Bearer Token 認証</text>
+
+      <!-- ===== Cloudflare Box ===== -->
+      <rect x="540" y="170" width="380" height="140" rx="14" fill="url(#gCF)" stroke="rgba(246,130,31,.3)" stroke-width="1.5"/>
+      <text x="560" y="195" fill="var(--orange2)" font-size="10" font-weight="700" letter-spacing=".08em">CLOUDFLARE</text>
+      <text x="650" y="195" fill="#475569" font-size="9">Workers (無料枠)</text>
+
+      <rect x="560" y="210" width="120" height="44" rx="7" fill="rgba(249,115,22,.12)" stroke="rgba(249,115,22,.25)" stroke-width="1"/>
+      <text x="620" y="229" text-anchor="middle" fill="#fb923c" font-size="10" font-weight="600">Light Scan</text>
+      <text x="620" y="244" text-anchor="middle" fill="#94a3b8" font-size="8">HTML regex 抽出</text>
+
+      <rect x="690" y="210" width="110" height="44" rx="7" fill="rgba(249,115,22,.12)" stroke="rgba(249,115,22,.25)" stroke-width="1"/>
+      <text x="745" y="229" text-anchor="middle" fill="#fb923c" font-size="10" font-weight="600">Store</text>
+      <text x="745" y="244" text-anchor="middle" fill="#94a3b8" font-size="8">drizzle ORM</text>
+
+      <rect x="810" y="210" width="90" height="44" rx="7" fill="rgba(249,115,22,.08)" stroke="rgba(249,115,22,.15)" stroke-width="1"/>
+      <text x="855" y="229" text-anchor="middle" fill="#94a3b8" font-size="9" font-weight="600">GET APIs</text>
+      <text x="855" y="244" text-anchor="middle" fill="#64748b" font-size="8">fonts/sites/stats</text>
+
+      <!-- Cloudflare → D1 -->
+      <line x1="720" y1="254" x2="720" y2="360" stroke="#f5c518" stroke-width="1.8" marker-end="url(#arrowGray)"/>
+      <text x="730" y="310" fill="#f5c518" font-size="9" font-weight="600">D1</text>
+      <text x="730" y="322" fill="#94a3b8" font-size="8">font-lover-db</text>
+
+      <!-- ===== D1 Box ===== -->
+      <rect x="560" y="360" width="320" height="70" rx="10" fill="url(#gD1)" stroke="rgba(245,197,24,.25)" stroke-width="1.5"/>
+      <text x="580" y="385" fill="var(--d1)" font-size="11" font-weight="700">🗄️ Cloudflare D1</text>
+      <text x="580" y="405" fill="#94a3b8" font-size="9">font_families / font_faces / font_sightings / font_mdn_refs</text>
+      <text x="580" y="420" fill="#64748b" font-size="8">APAC リージョン・無料枠</text>
+
+      <!-- ===== GitHub Box ===== -->
+      <rect x="60" y="380" width="280" height="70" rx="10" fill="url(#gGH)" stroke="rgba(255,255,255,.1)" stroke-width="1.5"/>
+      <text x="80" y="405" fill="#e2e8f0" font-size="11" font-weight="700">🐙 GitHub</text>
+      <text x="190" y="405" fill="#94a3b8" font-size="9">watanabe3tipapa/font-lover</text>
+      <text x="80" y="425" fill="#94a3b8" font-size="8">mono-repo (collector + zine + database + shared-types)</text>
+      <text x="80" y="440" fill="#64748b" font-size="8">push → Vercel 自動デプロイ / wrangler deploy → Workers</text>
+
+      <!-- GitHub → Vercel -->
+      <line x1="200" y1="380" x2="200" y2="310" stroke="#94a3b8" stroke-width="1.2" marker-end="url(#arrowGray)" stroke-dasharray="4,3"/>
+      <text x="160" y="350" fill="#94a3b8" font-size="8" font-weight="600">git push</text>
+
+      <!-- OKF Arrow: gen-okf.mjs -->
+      <rect x="60" y="310" width="200" height="34" rx="6" fill="rgba(168,85,247,.08)" stroke="rgba(168,85,247,.2)" stroke-width="1"/>
+      <text x="160" y="331" text-anchor="middle" fill="#c084fc" font-size="9" font-weight="500">⚙️ gen-okf.mjs → pipeline/knowledge/</text>
+      <line x1="160" y1="344" x2="160" y2="378" stroke="#c084fc" stroke-width="1" marker-end="url(#arrowPurple)" stroke-dasharray="3,3"/>
+
+      <!-- Legend -->
+      <rect x="60" y="470" width="10" height="10" rx="2" fill="rgba(59,130,246,.3)"/>
+      <text x="76" y="479" fill="#94a3b8" font-size="9">Vercel (zine)</text>
+      <rect x="170" y="470" width="10" height="10" rx="2" fill="rgba(249,115,22,.3)"/>
+      <text x="186" y="479" fill="#94a3b8" font-size="9">Cloudflare (collector)</text>
+      <rect x="330" y="470" width="10" height="10" rx="2" fill="rgba(245,197,24,.3)"/>
+      <text x="346" y="479" fill="#94a3b8" font-size="9">D1 (データベース)</text>
+      <rect x="460" y="470" width="10" height="10" rx="2" fill="rgba(168,85,247,.3)"/>
+      <text x="476" y="479" fill="#94a3b8" font-size="9">OKF 知識バンドル</text>
+      <rect x="600" y="470" width="10" height="10" rx="2" fill="rgba(255,255,255,.1)"/>
+      <text x="616" y="479" fill="#94a3b8" font-size="9">GitHub (ソース管理)</text>
+    </svg>
+  </div>
+
+  <p style="color:var(--fg3);font-size:.85rem;text-align:center;margin-top:.5rem">
+    図: マルチクラウド3層構成。ユーザーは Vercel 上の UI (zine) を使い、データは Cloudflare D1 に集約される。<br>
+    ローカル開発時は better-sqlite3 で直接操作し、本番は COLLECTOR_URL 経由のプロキシに切り替わる。
+  </p>
+</div>
+</section>
+
+<!-- ===== HOW IT WORKS ===== -->
+<section id="how-it-works">
+<div class="container">
+  <p class="section-label">How It Works</p>
+  <h2 class="section-title">仕組みを詳しく</h2>
+  <p class="section-desc">スキャン、保存、表示の3つのフェーズで構成されています。</p>
+
+  <!-- Phase 1: Scan -->
+  <h3 style="font-size:1.15rem;font-weight:700;color:#fff;margin:3rem 0 1rem;display:flex;align-items:center;gap:.5rem">
+    <span style="background:var(--orange);color:#000;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:.85rem">1</span>
+    スキャンフェーズ
+  </h3>
+
+  <div class="arch-diagram">
+    <svg viewBox="0 0 900 260" xmlns="http://www.w3.org/2000/svg">
+      <text x="450" y="22" text-anchor="middle" fill="#64748b" font-size="11" font-weight="600" letter-spacing=".08em">SCAN FLOW — lightScan()</text>
+
+      <!-- Step 1 -->
+      <rect x="20" y="40" width="130" height="60" rx="8" fill="#1e293b" stroke="#334155"/>
+      <text x="85" y="65" text-anchor="middle" fill="#e2e8f0" font-size="10" font-weight="600">POST /api/scan</text>
+      <text x="85" y="82" text-anchor="middle" fill="#94a3b8" font-size="8">{"url":"...", "mode":"light"}</text>
+
+      <line x1="150" y1="70" x2="190" y2="70" stroke="#fb923c" stroke-width="1.5" marker-end="url(#arrowOrange)"/>
+
+      <!-- Step 2 -->
+      <rect x="190" y="40" width="130" height="60" rx="8" fill="rgba(249,115,22,.08)" stroke="rgba(249,115,22,.25)"/>
+      <text x="255" y="65" text-anchor="middle" fill="#fb923c" font-size="10" font-weight="600">fetch(url)</text>
+      <text x="255" y="82" text-anchor="middle" fill="#94a3b8" font-size="8">HTML を取得</text>
+
+      <line x1="320" y1="70" x2="360" y2="70" stroke="#fb923c" stroke-width="1.5" marker-end="url(#arrowOrange)"/>
+
+      <!-- Step 3 -->
+      <rect x="360" y="40" width="170" height="60" rx="8" fill="rgba(249,115,22,.08)" stroke="rgba(249,115,22,.25)"/>
+      <text x="445" y="60" text-anchor="middle" fill="#fb923c" font-size="10" font-weight="600">Regex 抽出</text>
+      <text x="445" y="75" text-anchor="middle" fill="#94a3b8" font-size="8">@font-face { ... }</text>
+      <text x="445" y="88" text-anchor="middle" fill="#94a3b8" font-size="8">font-family: ...</text>
+
+      <line x1="530" y1="70" x2="570" y2="70" stroke="#fb923c" stroke-width="1.5" marker-end="url(#arrowOrange)"/>
+
+      <!-- Step 4 -->
+      <rect x="570" y="40" width="150" height="60" rx="8" fill="rgba(249,115,22,.08)" stroke="rgba(249,115,22,.25)"/>
+      <text x="645" y="60" text-anchor="middle" fill="#fb923c" font-size="10" font-weight="600">Google Fonts 検出</text>
+      <text x="645" y="75" text-anchor="middle" fill="#94a3b8" font-size="8">fonts.googleapis.com</text>
+      <text x="645" y="88" text-anchor="middle" fill="#94a3b8" font-size="8">?family=... を抽出</text>
+
+      <line x1="720" y1="70" x2="760" y2="70" stroke="#34d399" stroke-width="1.5" marker-end="url(#arrowGreen)"/>
+
+      <!-- Step 5 -->
+      <rect x="760" y="40" width="120" height="60" rx="8" fill="rgba(16,185,129,.08)" stroke="rgba(16,185,129,.25)"/>
+      <text x="820" y="65" text-anchor="middle" fill="#34d399" font-size="10" font-weight="600">Response</text>
+      <text x="820" y="82" text-anchor="middle" fill="#94a3b8" font-size="8">DetectedFont[]</text>
+
+      <!-- Regex detail boxes -->
+      <rect x="360" y="120" width="170" height="120" rx="8" fill="var(--bg)" stroke="rgba(255,255,255,.06)"/>
+      <text x="370" y="140" fill="#fb923c" font-size="9" font-weight="700">抽出パターン</text>
+      <text x="370" y="160" fill="#94a3b8" font-size="8" font-family="JetBrains Mono,monospace">@font-face\{...\}</text>
+      <text x="370" y="178" fill="#94a3b8" font-size="8" font-family="JetBrains Mono,monospace">font-family:\s*([^;}{]+)</text>
+      <text x="370" y="196" fill="#94a3b8" font-size="8" font-family="JetBrains Mono,monospace">fonts\.googleapis\.com</text>
+      <text x="370" y="214" fill="#94a3b8" font-size="8" font-family="JetBrains Mono,monospace">  ...family=([^&"']+)</text>
+      <text x="370" y="232" fill="#64748b" font-size="8">HTML のみ解析（CSS 読み込み無し）</text>
+
+      <!-- Data stored -->
+      <rect x="570" y="120" width="310" height="120" rx="8" fill="var(--bg)" stroke="rgba(255,255,255,.06)"/>
+      <text x="580" y="140" fill="#34d399" font-size="9" font-weight="700">storeScanResult で保存</text>
+      <text x="580" y="162" fill="#e2e8f0" font-size="9">① font_families に UPSERT（重複時 popularity +1）</text>
+      <text x="580" y="180" fill="#e2e8f0" font-size="9">② font_sightings に INSERT（サイトURL + モード）</text>
+      <text x="580" y="200" fill="#e2e8f0" font-size="9">③ font_faces に INSERT（@font-face SRC がある場合）</text>
+      <text x="580" y="220" fill="#64748b" font-size="8">source_type は "google-fonts" / "unknown" 等に自動分類</text>
+    </svg>
+  </div>
+
+  <!-- Phase 2: Store -->
+  <h3 style="font-size:1.15rem;font-weight:700;color:#fff;margin:3rem 0 1rem;display:flex;align-items:center;gap:.5rem">
+    <span style="background:var(--accent);color:#fff;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:.85rem">2</span>
+    データ保存フェーズ
+  </h3>
+
+  <div class="arch-diagram">
+    <svg viewBox="0 0 900 200" xmlns="http://www.w3.org/2000/svg">
+      <text x="450" y="22" text-anchor="middle" fill="#64748b" font-size="11" font-weight="600" letter-spacing=".08em">DATA SCHEMA — D1 / SQLite</text>
+
+      <!-- Table boxes -->
+      <g transform="translate(20,40)">
+        <rect width="200" height="140" rx="8" fill="var(--bg3)" stroke="rgba(245,197,24,.2)"/>
+        <rect width="200" height="30" rx="8" fill="rgba(245,197,24,.1)"/>
+        <text x="15" y="20" fill="var(--d1)" font-size="10" font-weight="700">font_families</text>
+        <text x="15" y="50" fill="#e2e8f0" font-size="9" font-family="JetBrains Mono,monospace">id             INTEGER PK</text>
+        <text x="15" y="66" fill="#e2e8f0" font-size="9" font-family="JetBrains Mono,monospace">family_name    TEXT UNIQUE</text>
+        <text x="15" y="82" fill="#e2e8f0" font-size="9" font-family="JetBrains Mono,monospace">category       TEXT</text>
+        <text x="15" y="98" fill="#e2e8f0" font-size="9" font-family="JetBrains Mono,monospace">source_type    TEXT</text>
+        <text x="15" y="114" fill="#e2e8f0" font-size="9" font-family="JetBrains Mono,monospace">popularity     REAL</text>
+        <text x="15" y="130" fill="#94a3b8" font-size="8">← 観測回数でスコア付け</text>
+      </g>
+
+      <g transform="translate(240,40)">
+        <rect width="180" height="140" rx="8" fill="var(--bg3)" stroke="rgba(245,197,24,.2)"/>
+        <rect width="180" height="30" rx="8" fill="rgba(245,197,24,.1)"/>
+        <text x="15" y="20" fill="var(--d1)" font-size="10" font-weight="700">font_sightings</text>
+        <text x="15" y="50" fill="#e2e8f0" font-size="9" font-family="JetBrains Mono,monospace">id             INTEGER PK</text>
+        <text x="15" y="66" fill="#e2e8f0" font-size="9" font-family="JetBrains Mono,monospace">family_id      INTEGER FK</text>
+        <text x="15" y="82" fill="#e2e8f0" font-size="9" font-family="JetBrains Mono,monospace">site_url       TEXT</text>
+        <text x="15" y="98" fill="#e2e8f0" font-size="9" font-family="JetBrains Mono,monospace">site_domain    TEXT</text>
+        <text x="15" y="114" fill="#e2e8f0" font-size="9" font-family="JetBrains Mono,monospace">mode           TEXT</text>
+        <text x="15" y="130" fill="#94a3b8" font-size="8">← light / full</text>
+      </g>
+
+      <g transform="translate(440,40)">
+        <rect width="200" height="140" rx="8" fill="var(--bg3)" stroke="rgba(245,197,24,.2)"/>
+        <rect width="200" height="30" rx="8" fill="rgba(245,197,24,.1)"/>
+        <text x="15" y="20" fill="var(--d1)" font-size="10" font-weight="700">font_faces</text>
+        <text x="15" y="50" fill="#e2e8f0" font-size="9" font-family="JetBrains Mono,monospace">id             INTEGER PK</text>
+        <text x="15" y="66" fill="#e2e8f0" font-size="9" font-family="JetBrains Mono,monospace">family_id      INTEGER FK</text>
+        <text x="15" y="82" fill="#e2e8f0" font-size="9" font-family="JetBrains Mono,monospace">weight         TEXT</text>
+        <text x="15" y="98" fill="#e2e8f0" font-size="9" font-family="JetBrains Mono,monospace">style          TEXT</text>
+        <text x="15" y="114" fill="#e2e8f0" font-size="9" font-family="JetBrains Mono,monospace">source_url     TEXT</text>
+        <text x="15" y="130" fill="#94a3b8" font-size="8">← @font-face src</text>
+      </g>
+
+      <g transform="translate(660,40)">
+        <rect width="220" height="140" rx="8" fill="var(--bg3)" stroke="rgba(245,197,24,.2)"/>
+        <rect width="220" height="30" rx="8" fill="rgba(245,197,24,.1)"/>
+        <text x="15" y="20" fill="var(--d1)" font-size="10" font-weight="700">font_mdn_refs</text>
+        <text x="15" y="50" fill="#e2e8f0" font-size="9" font-family="JetBrains Mono,monospace">id             INTEGER PK</text>
+        <text x="15" y="66" fill="#e2e8f0" font-size="9" font-family="JetBrains Mono,monospace">family_id      INTEGER FK</text>
+        <text x="15" y="82" fill="#e2e8f0" font-size="9" font-family="JetBrains Mono,monospace">mdn_slug       TEXT</text>
+        <text x="15" y="98" fill="#e2e8f0" font-size="9" font-family="JetBrains Mono,monospace">description    TEXT</text>
+        <text x="15" y="114" fill="#e2e8f0" font-size="9" font-family="JetBrains Mono,monospace">compat_note    TEXT</text>
+        <text x="15" y="130" fill="#94a3b8" font-size="8">← MDN ブラウザ互換情報</text>
+      </g>
+
+      <!-- Relations -->
+      <line x1="220" y1="80" x2="240" y2="80" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrowGray)"/>
+      <line x1="420" y1="80" x2="440" y2="80" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrowGray)"/>
+      <line x1="640" y1="80" x2="660" y2="80" stroke="#94a3b8" stroke-width="1" marker-end="url(#arrowGray)"/>
+      <text x="230" y="72" fill="#64748b" font-size="7">1:N</text>
+      <text x="430" y="72" fill="#64748b" font-size="7">1:N</text>
+      <text x="650" y="72" fill="#64748b" font-size="7">1:N</text>
+    </svg>
+  </div>
+
+  <!-- Phase 3: Display -->
+  <h3 style="font-size:1.15rem;font-weight:700;color:#fff;margin:3rem 0 1rem;display:flex;align-items:center;gap:.5rem">
+    <span style="background:var(--green);color:#000;width:28px;height:28px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:.85rem">3</span>
+    表示フェーズ（プロキシ切替）
+  </h3>
+
+  <div class="compare">
+    <div class="compare-box local">
+      <h3>💻 ローカル開発</h3>
+      <ul>
+        <li>better-sqlite3 で <code>./font-lover.db</code> を直接参照</li>
+        <li><code>lib/db.ts</code> の遅延初期化でモジュール読み込み時クラッシュ防止</li>
+        <li>リアルタイムで DB の変更が即座に反映される</li>
+        <li>OKF ビューワーは <code>buildOkfKnowledge()</code> でライブ生成</li>
+        <li><code>COLLECTOR_URL</code> 未設定 → ローカルモード</li>
+      </ul>
+    </div>
+    <div class="compare-box prod">
+      <h3>☁️ 本番 (Vercel)</h3>
+      <ul>
+        <li><code>lib/data.ts</code> が <code>COLLECTOR_URL</code> を検出しプロキシに切替</li>
+        <li>GET /api/fonts 等 → Cloudflare Worker 経由で D1 を参照</li>
+        <li>Worker 側は Bearer Token 認証で不正アクセスを防止</li>
+        <li>OKF ビューワーはコミット済み <code>pipeline/knowledge/*.json</code> を返す</li>
+        <li>DB 不在でも空データ / フォールバックで UI が崩れない</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="arch-diagram">
+    <svg viewBox="0 0 900 180" xmlns="http://www.w3.org/2000/svg">
+      <text x="450" y="22" text-anchor="middle" fill="#64748b" font-size="11" font-weight="600" letter-spacing=".08em">DATA ACCESS — lib/data.ts ルーティング</text>
+
+      <rect x="20" y="45" width="180" height="50" rx="8" fill="#1e293b" stroke="#334155"/>
+      <text x="110" y="67" text-anchor="middle" fill="#e2e8f0" font-size="10" font-weight="600">API Route / Page</text>
+      <text x="110" y="84" text-anchor="middle" fill="#94a3b8" font-size="8">listFonts() / getStats()</text>
+
+      <line x1="200" y1="70" x2="260" y2="70" stroke="#60a5fa" stroke-width="1.5" marker-end="url(#arrowBlue)"/>
+
+      <rect x="260" y="35" width="160" height="70" rx="8" fill="rgba(16,185,129,.08)" stroke="rgba(16,185,129,.25)"/>
+      <text x="340" y="57" text-anchor="middle" fill="#34d399" font-size="10" font-weight="600">lib/data.ts</text>
+      <text x="340" y="74" text-anchor="middle" fill="#94a3b8" font-size="8">if (REMOTE) → proxy</text>
+      <text x="340" y="88" text-anchor="middle" fill="#94a3b8" font-size="8">else → getDb()</text>
+
+      <!-- Local path -->
+      <line x1="300" y1="105" x2="300" y2="135" stroke="#34d399" stroke-width="1.5" marker-end="url(#arrowGreen)"/>
+      <rect x="220" y="135" width="160" height="36" rx="6" fill="rgba(16,185,129,.06)" stroke="rgba(16,185,129,.15)"/>
+      <text x="300" y="158" text-anchor="middle" fill="#34d399" font-size="9" font-weight="600">lib/db.ts → better-sqlite3</text>
+
+      <!-- Remote path -->
+      <line x1="420" y1="70" x2="480" y2="70" stroke="#fb923c" stroke-width="1.5" marker-end="url(#arrowOrange)"/>
+      <rect x="480" y="45" width="140" height="50" rx="8" fill="rgba(249,115,22,.08)" stroke="rgba(249,115,22,.25)"/>
+      <text x="550" y="67" text-anchor="middle" fill="#fb923c" font-size="10" font-weight="600">proxyFetch()</text>
+      <text x="550" y="84" text-anchor="middle" fill="#94a3b8" font-size="8">Bearer + cache: no-store</text>
+
+      <line x1="620" y1="70" x2="680" y2="70" stroke="#fb923c" stroke-width="1.5" marker-end="url(#arrowOrange)"/>
+      <rect x="680" y="45" width="200" height="50" rx="8" fill="var(--bg3)" stroke="rgba(249,115,22,.2)"/>
+      <text x="780" y="67" text-anchor="middle" fill="#fb923c" font-size="10" font-weight="600">Cloudflare Worker GET</text>
+      <text x="780" y="84" text-anchor="middle" fill="#94a3b8" font-size="8">fonts / sites / stats</text>
+
+      <line x1="780" y1="95" x2="780" y2="135" stroke="#f5c518" stroke-width="1.5" marker-end="url(#arrowGray)"/>
+      <rect x="700" y="135" width="160" height="36" rx="6" fill="rgba(245,197,24,.06)" stroke="rgba(245,197,24,.15)"/>
+      <text x="780" y="158" text-anchor="middle" fill="var(--d1)" font-size="9" font-weight="600">D1 SELECT → JSON</text>
+
+      <!-- Fallback arrow -->
+      <path d="M400 150 Q400 170 450 170 L650 170 Q680 170 680 155" fill="none" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3,3" marker-end="url(#arrowGray)"/>
+      <text x="540" y="168" text-anchor="middle" fill="#64748b" font-size="8">proxySafe → エラー時は空データ返却</text>
+    </svg>
+  </div>
+</div>
+</section>
+
+<!-- ===== OKF KNOWLEDGE PIPELINE ===== -->
+<section>
+<div class="container">
+  <p class="section-label">OKF v0.2</p>
+  <h2 class="section-title">知見バンドル自動生成パイプライン</h2>
+  <p class="section-desc">OKF (Open Knowledge Format) v0.2 準拠の JSON バンドルを、DB の蓄積データから自動生成します。</p>
+
+  <div class="okf-flow">
+    <div class="okf-node">
+      <h4>🗄️ D1 / SQLite</h4>
+      <p>font_families<br>font_sightings<br>font_mdn_refs</p>
+    </div>
+    <span class="okf-arrow">→</span>
+    <div class="okf-node">
+      <h4>⚙️ buildOkfKnowledge()</h4>
+      <p>Drizzle ORM で<br>全テーブルを結合クエリ</p>
+    </div>
+    <span class="okf-arrow">→</span>
+    <div class="okf-node">
+      <h4>📊 hash 差分</h4>
+      <p>前回バンドルと比較<br>new / updated / unchanged</p>
+    </div>
+    <span class="okf-arrow">→</span>
+    <div class="okf-node">
+      <h4>📄 JSON 生成</h4>
+      <p>index.json<br>concepts/fonts/*.json</p>
+    </div>
+    <span class="okf-arrow">→</span>
+    <div class="okf-node">
+      <h4>🌐 /api/okf</h4>
+      <p>okf_version: "0.2"<br>machine-readable</p>
+    </div>
+  </div>
+
+  <div class="arch-diagram">
+    <pre><code>{
+  "okf_version": "0.2",
+  "index": {
+    "generatedAt": "2026-09-14T06:30:24.195Z",
+    "total": 7,
+    "byStatus": { "new": 3, "unchanged": 4 },
+    "concepts": [
+      { "id": "fonts/inter", "type": "FontFamily",
+        "status": "new", "sections": 3 },
+      { "id": "fonts/noto-sans-jp", "type": "FontFamily",
+        "status": "unchanged", "sections": 3 }
+    ]
+  },
+  "concepts": [
+    {
+      "id": "fonts/inter",
+      "type": "FontFamily",
+      "title": "Inter",
+      "url": "https://fonts.google.com/specimen/Inter",
+      "meta": {
+        "type": "FontFamily",
+        "tags": ["sans-serif", "google-fonts"],
+        "generated": {
+          "by": "process:font-lover-collector/0.1.0",
+          "at": "2026-09-14T06:30:24.195Z"
+        },
+        "verified": true,
+        "stale_after": "2026-12-13T06:30:24.195Z",
+        "sources": [
+          { "site": "vercel.com", "usage_count": 5 }
+        ]
+      },
+      "sections": [
+        { "heading": "Summary", "level": 2,
+          "blocks": [{ "type": "text",
+            "content": "Inter は 25 sight..." }] },
+        { "heading": "Sightings", "level": 2,
+          "blocks": [{ "type": "list", "items": [
+            "vercel.com (×5)",
+            "techcrunch.com (×3)"
+          ]}] }
+      ],
+      "hash": "a1b2c3d4..."
+    }
+  ]
+}</code></pre>
+  </div>
+  <p style="color:var(--fg3);font-size:.85rem;text-align:center;margin-top:.5rem">
+    図: /api/okf のレスポンス例。各 concept には sightings から要約した section が含まれ、meta.stale_after でリフレッシュ時期を示す。
+  </p>
+</div>
+</section>
+
+<!-- ===== TECH STACK ===== -->
+<section>
+<div class="container">
+  <p class="section-label">Tech Stack</p>
+  <h2 class="section-title">技術スタック</h2>
+  <div class="tech-grid">
+    <div class="tech-item">
+      <div class="icon" style="background:rgba(255,255,255,.06);color:#fff">▲</div>
+      <div class="info"><h4>Vercel</h4><p>Next.js App Router / Edge Runtime</p></div>
+    </div>
+    <div class="tech-item">
+      <div class="icon" style="background:rgba(249,115,22,.12);color:var(--orange2)">☁</div>
+      <div class="info"><h4>Cloudflare Workers</h4><p>Hono / nodejs_compat / 無料枠</p></div>
+    </div>
+    <div class="tech-item">
+      <div class="icon" style="background:rgba(245,197,24,.12);color:var(--d1)">🗄</div>
+      <div class="info"><h4>Cloudflare D1</h4><p>SQLite ベースのエッジDB / APAC</p></div>
+    </div>
+    <div class="tech-item">
+      <div class="icon" style="background:rgba(59,130,246,.12);color:var(--accent2)">TypeScript</div>
+      <div class="info"><h4>TypeScript</h4><p>全体を strict で型安全に</p></div>
+    </div>
+    <div class="tech-item">
+      <div class="icon" style="background:rgba(168,85,247,.12);color:var(--purple2)">Drizzle</div>
+      <div class="info"><h4>Drizzle ORM</h4><p>SQLite / D1 共通のスキーマ定義</p></div>
+    </div>
+    <div class="tech-item">
+      <div class="icon" style="background:rgba(16,185,129,.12);color:var(--green2)">Turbo</div>
+      <div class="info"><h4>Turborepo</h4><p>monorepo ビルドキャッシュ</p></div>
+    </div>
+    <div class="tech-item">
+      <div class="icon" style="background:rgba(239,68,68,.12);color:var(--red)">pnpm</div>
+      <div class="info"><h4>pnpm</h4><p>workspace パッケージ管理</p></div>
+    </div>
+    <div class="tech-item">
+      <div class="icon" style="background:rgba(255,255,255,.06);color:#fff">Hono</div>
+      <div class="info"><h4>Hono</h4><p>超軽量 Web フレームワーク</p></div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ===== DEMO ===== -->
+<section id="demo">
+<div class="container">
+  <p class="section-label">Live Demo</p>
+  <h2 class="section-title">デモ</h2>
+  <p class="section-desc">Vercel でホストされている本番環境を直接お試しいただけます。</p>
+
+  <div class="demo-frame">
+    <div class="demo-bar">
+      <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+      <span class="url">font-lover.vercel.app</span>
+    </div>
+    <iframe src="https://font-lover.vercel.app/" loading="lazy" title="FONT-LOVER Demo"></iframe>
+  </div>
+
+  <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-top:1rem">
+    <a href="https://font-lover.vercel.app/" target="_blank" class="btn btn-primary" style="font-size:.85rem">↗ フルスクリーンで開く</a>
+    <a href="https://font-lover.vercel.app/api/fonts" target="_blank" class="btn btn-outline" style="font-size:.85rem">/api/fonts</a>
+    <a href="https://font-lover.vercel.app/api/stats" target="_blank" class="btn btn-outline" style="font-size:.85rem">/api/stats</a>
+    <a href="https://font-lover.vercel.app/api/okf" target="_blank" class="btn btn-outline" style="font-size:.85rem">/api/okf</a>
+    <a href="https://font-lover.vercel.app/okf" target="_blank" class="btn btn-outline" style="font-size:.85rem">OKF ビューワー</a>
+    <a href="https://font-lover.vercel.app/inspector" target="_blank" class="btn btn-outline" style="font-size:.85rem">DBインスペクタ</a>
+  </div>
+</div>
+</section>
+
+<!-- ===== API REFERENCE ===== -->
+<section id="api">
+<div class="container">
+  <p class="section-label">API Reference</p>
+  <h2 class="section-title">API リファレンス</h2>
+
+  <h3 style="color:var(--orange2);font-size:.95rem;margin:2rem 0 .5rem">Cloudflare Worker（collector）</h3>
+  <p style="color:var(--fg3);font-size:.85rem;margin-bottom:.5rem">Endpoint: <code>https://font-lover-collector.watanabe3ti.workers.dev</code> &mdash; Bearer Token 認証必須</p>
+  <table class="api-table">
+    <thead><tr><th>Method</th><th>Path</th><th>説明</th><th>レスポンス</th></tr></thead>
+    <tbody>
+      <tr><td><span class="method post">POST</span></td><td><code>/api/scan</code></td><td>URL をスキャンし D1 に保存</td><td><code>{url, mode, fonts[], fontFaces[]}</code></td></tr>
+      <tr><td><span class="method post">POST</span></td><td><code>/api/collect</code></td><td>複数 URL を一括スキャン</td><td><code>{results[], processed, failed}</code></td></tr>
+      <tr><td><span class="method get">GET</span></td><td><code>/api/fonts</code></td><td>全フォントファミリを取得（人気順）</td><td><code>{fonts[]}</code></td></tr>
+      <tr><td><span class="method get">GET</span></td><td><code>/api/fonts/:family</code></td><td>特定フォントの詳細 + sighting</td><td><code>{font, sightings[]}</code></td></tr>
+      <tr><td><span class="method get">GET</span></td><td><code>/api/sites/:domain</code></td><td>特定ドメインで検出されたフォント</td><td><code>{fonts[]}</code></td></tr>
+      <tr><td><span class="method get">GET</span></td><td><code>/api/stats</code></td><td>統計情報（件数・ランキング等）</td><td><code>{totalFonts, totalSightings, topFonts[]}</code></td></tr>
+      <tr><td><span class="method get">GET</span></td><td><code>/</code></td><td>ヘルスチェック</td><td><code>{ok: true}</code></td></tr>
+    </tbody>
+  </table>
+
+  <h3 style="color:var(--accent2);font-size:.95rem;margin:2rem 0 .5rem">Vercel（zine）</h3>
+  <p style="color:var(--fg3);font-size:.85rem;margin-bottom:.5rem">Endpoint: <code>https://font-lover.vercel.app</code></p>
+  <table class="api-table">
+    <thead><tr><th>Method</th><th>Path</th><th>説明</th><th>動作</th></tr></thead>
+    <tbody>
+      <tr><td><span class="method get">GET</span></td><td><code>/api/fonts</code></td><td>フォント一覧</td><td>本番: Worker → D1 / ローカル: SQLite</td></tr>
+      <tr><td><span class="method get">GET</span></td><td><code>/api/fonts/:family</code></td><td>フォント詳細</td><td>同上</td></tr>
+      <tr><td><span class="method get">GET</span></td><td><code>/api/sites/:domain</code></td><td>サイト別フォント</td><td>同上</td></tr>
+      <tr><td><span class="method get">GET</span></td><td><code>/api/stats</code></td><td>統計情報</td><td>同上</td></tr>
+      <tr><td><span class="method get">GET</span></td><td><code>/api/okf</code></td><td>OKF v0.2 知識バンドル</td><td>コミット済み JSON / ローカル: ライブ生成</td></tr>
+      <tr><td><span class="method get">GET</span></td><td><code>/okf</code></td><td>OKF ビューワー（UI）</td><td>—</td></tr>
+      <tr><td><span class="method get">GET</span></td><td><code>/inspector</code></td><td>DB インスペクタ</td><td>リモート: リンク集 / ローカル: JSON 表示</td></tr>
+    </tbody>
+  </table>
+</div>
+</section>
+
+<!-- ===== TUTORIAL ===== -->
+<section id="tutorial">
+<div class="container">
+  <p class="section-label">Tutorial</p>
+  <h2 class="section-title">チュートリアル</h2>
+  <p class="section-desc">2つの方法で FONT-LOVER をお試しいただけます。</p>
+
+  <h3 style="color:#fff;font-size:1.1rem;margin-bottom:1rem">A. API を使ってサイトをスキャンする</h3>
+  <div class="steps">
+    <div class="step">
+      <div class="step-content">
+        <h3>Worker URL とトークンを用意する</h3>
+        <p>Worker のエンドポイントと、認証に使う Bearer Token を確認します。ローカルで動作させている場合は <code>http://localhost:8787</code> と <code>.dev.vars</code> のトークンを使います。</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-content">
+        <h3>POST /api/scan でスキャン</h3>
+        <p>対象の URL を送信します。</p>
+<pre><code>curl -X POST https://font-lover-collector.watanabe3ti.workers.dev/api/scan \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"url":"https://example.com","mode":"light"}'</code></pre>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-content">
+        <h3>GET /api/fonts で結果を確認</h3>
+        <p>保存されたフォント一覧を取得します。</p>
+<pre><code>curl https://font-lover.vercel.app/api/fonts | jq '.fonts[0:3]'</code></pre>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-content">
+        <h3>OKF バンドルを閲覧する</h3>
+        <p><a href="https://font-lover.vercel.app/okf" target="_blank">/okf</a> で、全フォントの知見を体系的に閲覧できます。</p>
+      </div>
+    </div>
+  </div>
+
+  <h3 style="color:#fff;font-size:1.1rem;margin:3rem 0 1rem">B. ローカルで開発環境を構築する</h3>
+  <div class="steps">
+    <div class="step">
+      <div class="step-content">
+        <h3>リポジトリをクローン</h3>
+<pre><code>git clone https://github.com/watanabe3tipapa/font-lover.git
+cd font-lover
+pnpm install</code></pre>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-content">
+        <h3>collector を起動（wrangler dev）</h3>
+<p style="color:var(--fg2);font-size:.9rem;margin-bottom:.5rem">ローカル D1 にスキーマを適用してから起動します。</p>
+<pre><code># プレーン SQL に変換（statement-breakpoint を除去）
+grep -v -- '-->' packages/database/drizzle/0000_unusual_nextwave.sql > /tmp/schema.sql
+
+# ローカル D1 にスキーマ適用
+npx wrangler d1 execute font-lover-db --local --file=/tmp/schema.sql
+
+# collector 起動（port 8787）
+npx wrangler dev --port 8787</code></pre>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-content">
+        <h3>zine を起動</h3>
+<p style="color:var(--fg2);font-size:.9rem;margin-bottom:.5rem">プロキシモードで起動する場合:</p>
+<pre><code># 本番モード（D1 プロキシ）で起動
+COLLECTOR_URL=http://localhost:8787 pnpm --filter @font-lover/zine dev
+
+# ローカル SQLite モードで起動
+pnpm --filter @font-lover/zine dev</code></pre>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-content">
+        <h3>スキャン → 確認</h3>
+<pre><code># スキャン
+curl -X POST http://localhost:8787/api/scan \
+  -H "Content-Type: application/json" \
+  -d '{"url":"https://example.com","mode":"light"}'
+
+# 確認
+open http://localhost:3000/api/fonts</code></pre>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ===== SELF-HOST ===== -->
+<section>
+<div class="container">
+  <p class="section-label">Self-Host</p>
+  <h2 class="section-title">自分で運用する</h2>
+  <p class="section-desc">無料アカウントだけで本番環境を構築する手順です。</p>
+
+  <div class="flow-grid">
+    <div class="flow-card">
+      <div class="step-num">1</div>
+      <h3>GitHub リポジトリを fork</h3>
+      <p><a href="https://github.com/watanabe3tipapa/font-lover/fork" target="_blank">watanabe3tipapa/font-lover</a> を fork します。</p>
+    </div>
+    <div class="flow-card">
+      <div class="step-num">2</div>
+      <h3>Cloudflare で Worker + D1 を作成</h3>
+      <p><code>wrangler login</code> → <code>wrangler d1 create font-lover-db</code> → 得られた <code>database_id</code> を wrangler.toml に反映。</p>
+    </div>
+    <div class="flow-card">
+      <div class="step-num">3</div>
+      <h3>スキーマ適用 → デプロイ</h3>
+      <p><code>wrangler d1 execute ... --remote --file=schema.sql</code> → <code>wrangler deploy</code></p>
+    </div>
+    <div class="flow-card">
+      <div class="step-num">4</div>
+      <h3>Vercel にデプロイ</h3>
+      <p>Vercel で GitHub リポジトリを紐付け。Root Directory を <code>apps/zine</code> に設定。</p>
+    </div>
+    <div class="flow-card">
+      <div class="step-num">5</div>
+      <h3>環境変数を設定</h3>
+      <p>Vercel に <code>COLLECTOR_URL</code> と <code>WORKER_TOKEN</code> を設定。Worker にも <code>WORKER_TOKEN</code> をシークレットとして登録。</p>
+    </div>
+    <div class="flow-card">
+      <div class="step-num">6</div>
+      <h3>スキャン開始</h3>
+      <p>Token 認証付きで POST /api/scan → フォントデータが蓄積されていきます。</p>
+    </div>
+  </div>
+
+  <div style="margin-top:2rem;padding:1.2rem 1.5rem;background:var(--bg3);border-radius:var(--radius-sm);border-left:3px solid var(--orange)">
+    <p style="color:var(--fg);font-size:.9rem;margin-bottom:.3rem"><strong>無料枠の目安</strong></p>
+    <p style="color:var(--fg2);font-size:.85rem">
+      Cloudflare Workers: 100,000 req/day &bull; D1: 5 GiB ストレージ &bull; Vercel: 100 GB バンド幅/月<br>
+      <span style="color:var(--fg3)">※ Browser Rendering（フルスキャン）は有料プラン (Workers Paid $5/月) が必要です。</span>
+    </p>
+  </div>
+</div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer>
+<div class="container">
+  <p style="margin-bottom:.5rem">
+    <strong>FONT-LOVER</strong> &mdash; built with Next.js, Cloudflare Workers, D1, and OKF v0.2
+  </p>
+  <p>
+    <a href="https://github.com/watanabe3tipapa/font-lover" target="_blank">GitHub</a> &bull;
+    <a href="https://font-lover.vercel.app" target="_blank">Demo</a> &bull;
+    <a href="https://font-lover.vercel.app/api/okf" target="_blank">OKF Bundle</a>
+  </p>
+</div>
+</footer>
+
+</body>
+</html>
