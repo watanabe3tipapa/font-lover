@@ -19,11 +19,19 @@ interface Sighting {
   usageCount: number | null;
 }
 
+interface MdnRef {
+  id: number;
+  mdnSlug: string;
+  description: string | null;
+  compatibilityNote: string | null;
+}
+
 export default function FontDetailPage() {
   const params = useParams();
   const family = decodeURIComponent(params.family as string);
   const [font, setFont] = useState<FontDetail | null>(null);
   const [sightings, setSightings] = useState<Sighting[]>([]);
+  const [mdnRefs, setMdnRefs] = useState<MdnRef[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -32,6 +40,7 @@ export default function FontDetailPage() {
       .then((data) => {
         setFont(data.font || null);
         setSightings(data.sightings || []);
+        setMdnRefs(data.mdnRefs || []);
         setLoading(false);
       })
       .catch(() => setLoading(false));
@@ -101,13 +110,36 @@ export default function FontDetailPage() {
         </div>
       )}
 
-      {/* MDN解説セクション（拡張用） */}
+      {/* MDN解説 */}
       <h3 className="dash-section-title">MDN 解説</h3>
-      <div className="notice" style={{ borderLeftColor: "var(--blue)" }}>
-        MDN Web Docs からのフォント関連解説をここに表示します。
-        <br />
-        <code>font_mdn_refs</code> テーブルとの連携を実装してください。
-      </div>
+      {mdnRefs.length === 0 ? (
+        <div className="notice" style={{ borderLeftColor: "var(--blue)" }}>
+          MDN Web Docs のフォント関連解説はまだ登録されていません。
+          <br />
+          <code>pnpm --filter @font-lover/zine mdn:sync</code> で同期すると、ここに解説が表示されます。
+        </div>
+      ) : (
+        <div style={{ marginTop: "0.8rem" }}>
+          {mdnRefs.map((ref) => (
+            <div key={ref.id} className="card card-blue" style={{ marginBottom: "1rem" }}>
+              <h3>
+                <a
+                  href={`https://developer.mozilla.org/en-US/docs/Web/CSS/${ref.mdnSlug}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ color: "var(--ink)" }}
+                >
+                  CSS <code>{ref.mdnSlug}</code> ↗
+                </a>
+              </h3>
+              {ref.description ? <p style={{ fontSize: ".9rem" }}>{ref.description}</p> : null}
+              {ref.compatibilityNote ? (
+                <div className="font-meta">{ref.compatibilityNote}</div>
+              ) : null}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

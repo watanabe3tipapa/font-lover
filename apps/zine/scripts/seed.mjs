@@ -24,6 +24,11 @@ const insertSighting = sqlite.prepare(`
   VALUES (@familyId, @siteUrl, @siteDomain, @pageTitle, @usageCount, @mode, @detectedAt)
 `);
 
+const insertMdnRef = sqlite.prepare(`
+  INSERT INTO font_mdn_refs (family_id, mdn_slug, description, compatibility_note)
+  VALUES (@familyId, @mdnSlug, @description, @compatibilityNote)
+`);
+
 const sites = [
   { url: "https://stripe.com", domain: "stripe.com", title: "Stripe — Payment infrastructure" },
   { url: "https://linear.app", domain: "linear.app", title: "Linear — Plan and build" },
@@ -49,6 +54,17 @@ for (const [i, family] of families.entries()) {
     usageCount: 1 + (i % 5),
     mode: "light",
     detectedAt: now,
+  });
+
+  const mdnSlug = i % 2 === 0 ? "font-family" : "@font-face";
+  insertMdnRef.run({
+    familyId,
+    mdnSlug,
+    description:
+      mdnSlug === "font-family"
+        ? "CSS の font-family プロパティは、選択した要素に対し、フォントファミリ名や総称ファミリ名の優先順位リストを指定します。"
+        : "CSS の @font-face アットルールは、ウェブフォントとしてテキストを表示するためのフォントフェイスを指定します。",
+    compatibilityNote: "MDN では主要ブラウザすべてに対応を確認済み。",
   });
 }
 

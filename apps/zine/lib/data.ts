@@ -1,5 +1,5 @@
 import { getDb } from "@/lib/db";
-import { fontFamilies, fontSightings } from "@font-lover/database";
+import { fontFamilies, fontSightings, fontMdnRefs } from "@font-lover/database";
 import { count, desc, eq } from "drizzle-orm";
 import { COLLECTOR_URL, REMOTE, WORKER_TOKEN } from "@/lib/config";
 
@@ -57,7 +57,7 @@ export async function getFontDetail(family: string) {
     try {
       return await proxy<FontDetail>(`/api/fonts/${encodeURIComponent(family)}`);
     } catch {
-      return { font: null, sightings: [] };
+      return { font: null, sightings: [], mdnRefs: [] };
     }
   }
   try {
@@ -66,7 +66,7 @@ export async function getFontDetail(family: string) {
       .from(fontFamilies)
       .where(eq(fontFamilies.familyName, family))
       .limit(1);
-    if (rows.length === 0) return { font: null, sightings: [] };
+    if (rows.length === 0) return { font: null, sightings: [], mdnRefs: [] };
 
     const sightings = await getDb()
       .select({
@@ -81,10 +81,16 @@ export async function getFontDetail(family: string) {
       .orderBy(desc(fontSightings.detectedAt))
       .limit(100);
 
-    return { font: rows[0], sightings };
+    const mdnRefs = await getDb()
+      .select()
+      .from(fontMdnRefs)
+      .where(eq(fontMdnRefs.familyId, rows[0].id))
+      .limit(20);
+
+    return { font: rows[0], sightings, mdnRefs };
   } catch (err) {
     console.warn("[data] local DB unavailable for getFontDetail:", err instanceof Error ? err.message : err);
-    return { font: null, sightings: [] };
+    return { font: null, sightings: [], mdnRefs: [] };
   }
 }
 
@@ -182,6 +188,14 @@ export interface LocalFont {
   updatedAt?: string | null;
 }
 
+export interface MdnRef {
+  id: number;
+  familyName?: string;
+  mdnSlug: string;
+  description: string | null;
+  compatibilityNote: string | null;
+}
+
 export interface FontDetail {
   font: LocalFont | null;
   sightings: {
@@ -191,6 +205,7 @@ export interface FontDetail {
     usageCount: number | null;
     mode?: string | null;
   }[];
+  mdnRefs: MdnRef[];
 }
 
 export interface SiteFont {

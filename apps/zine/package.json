@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "db:seed": "node scripts/seed.mjs",
-    "okf:build": "node scripts/gen-okf.mjs"
+    "okf:build": "node scripts/gen-okf.mjs",
+    "mdn:sync": "tsx ../../tooling/mdn-sync/sync-mdn.ts"
   },
   "dependencies": {
     "@font-lover/database": "workspace:*",
