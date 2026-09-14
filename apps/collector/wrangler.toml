@@ -1,13 +1,14 @@
 name = "font-lover-collector"
 main = "src/index.ts"
 compatibility_date = "2026-01-01"
+compatibility_flags = ["nodejs_compat"]
 
-[browser]
-binding = "MYBROWSER"
+# 無料枠プラン: Browser Rendering（完全スキャン）は有料のため [browser] バインディングなし。
+# スキャンは light モード（HTML パース）を主に使用する。full スキャンは動的 import のみ。
 
 [[d1_databases]]
 binding = "DB"
 database_name = "font-lover-db"
-database_id = "xxxxx"
+database_id = "488218ee-3e2a-4871-b8be-73c86c3cfebf"
 
 # ローカル開発用: .dev.vars に WORKER_TOKEN=xxx を記述
