@@ -100,13 +100,26 @@ pnpm dev                                  # collector:8787 / zine:3000
 ## 残タスク・未着手 / 注意点
 
 - **collector の実URLスキャン未検証**（wrangler dev のD1バインディング要設定。`wrangler.toml` の `database_id` は `xxxxx` のまま）
+- **Cloudflare リモートデプロイ未実施**: wrangler 未ログイン。`wrangler login` → D1 作成 → `database_id` 反映 → `wrangler deploy` が必要
 - **完全モード（Browser Run）** は Cloudflare 有料プラン前提。ローカル検証は難しい
 - **`tooling/mdn-sync`** は取得成功・保存処理が未実装（DB差し込みの置き換え待ち）
 - **`tooling/cron-trigger`** は CLI 実行可能な状態。Cron Trigger 設定は未実施
 - **eslint-config**（`packages/eslint-config`）は現状 zine から未参照。参照する場合は prettier/型スクリプト系プラグインの導入が必要
-- **Vercel / Cloudflare へのデプロイ**（`.github/workflows/deploy.yml` はあるが未検証）
-- 環境変数（`.env.local`）は使用中でないため未作成
-- git init は未実行（必要になった時点で実行予定）
+
+## デプロイ（2026-09-14 実施）
+
+- **GitHub**: 公開リポジトリ `watanabe3tipapa/font-lover`（main）で管理
+- **Vercel**: プロジェクト `font-lover`（Root Directory = `apps/zine`, Next.js）を GitHub 連動の自動デプロイで運用。
+  - 本番: https://font-lover.vercel.app
+  - `/api/okf` はコミット済み `pipeline/knowledge/*.json`（OKF v0.2）を返す
+  - DB 未設定のため `/api/fonts` 等は空データを返す（collector デプロイ後は `COLLECTOR_URL`/`WORKER_TOKEN` を設定して D1 プロキシ）
+- **ローカル/リモート切替**: `apps/zine/lib/config.ts` の `REMOTE`（= `COLLECTOR_URL` の有無）で判定。
+  `apps/zine/lib/data.ts` が SQLite（ローカル）または collector GET（本番）に振り分ける
+- **ローカル検証（coplan）**: `wrangler dev --config wrangler.dev.toml`（browser binding 除外 + `nodejs_compat`）。
+  D1 ローカル DB へは `wrangler d1 execute font-lover-db --local --file=<clean.sql>`（`--> statement-breakpoint` 行を除去したプレーンSQL）でスキーマ適用済み
+- **注意**: `@cloudflare/puppeteer` は `node:buffer` 依存で worker 起動時に失敗するため、
+  full スキャンは動的 import（`await import("../services/full-scan")`）に変更。light スキャン・読み取りAPI は puppeteer 不要
+- **wrangler.toml は本番用（`[browser]` あり）に据え置き**
 
 ## コマンドメモ
 
